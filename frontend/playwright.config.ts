@@ -5,14 +5,15 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
-  reporter: 'html',
+  workers: process.env.CI ? 1 : undefined,
+  reporter: process.env.CI ? 'html' : [['html'], ['list']],
+  timeout: 30000,
 
   use: {
     baseURL: 'http://localhost:3000',
-    trace: 'on',
-    video: 'on',
-    screenshot: 'on',
+    trace: process.env.CI ? 'retain-on-failure' : 'on',
+    video: process.env.CI ? 'retain-on-failure' : 'on',
+    screenshot: process.env.CI ? 'only-on-failure' : 'on',
   },
 
   projects: [
@@ -25,7 +26,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 30000,
   },
 });

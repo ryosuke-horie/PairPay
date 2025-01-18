@@ -1,0 +1,80 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Backend Dependencies
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-
+
+      - name: Cache Frontend Dependencies
+        uses: actions/cache@v3
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Create D1 Database
+        working-directory: ./backend
+        run: |
+          npm i -g wrangler
+          wrangler d1 create share-purse-test-db || true
+          wrangler d1 migrations apply share-purse-test-db
+
+      - name: Start Backend Server
+        working-directory: ./backend
+        run: |
+          npm run dev &
+          # バックエンドの起動を待機
+          npx wait-on http://127.0.0.1:8787 -t 30000
+        env:
+          JWT_SECRET: test_secret_key
+
+      - name: Run E2E Tests
+        working-directory: ./frontend
+        run: npm run test:e2e
+        env:
+          CI: true
+          NEXT_PUBLIC_BACKEND_URL: http://localhost:8787
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 30
