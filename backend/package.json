@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "share-purse-backend",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify"
