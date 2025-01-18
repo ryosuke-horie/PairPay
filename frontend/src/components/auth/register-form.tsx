@@ -17,11 +17,13 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import type { RegisterInput } from '@/types/auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from 'react';
 
 const formSchema = z.object({
-  name: z.string().min(1, 'お名前を入力してください'),
-  email: z.string().email('メールアドレスの形式が正しくありません'),
-  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -29,6 +31,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function RegisterForm() {
   const { toast } = useToast();
   const { register } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,17 +44,19 @@ export function RegisterForm() {
 
   async function onSubmit(values: RegisterInput) {
     try {
+      setError(null);
       await register.mutateAsync(values);
       toast({
         title: '登録完了',
         description: 'アカウントの登録が完了しました',
       });
-      // ログインページなどへリダイレクト
-      // window.location.href = '/login';
+      window.location.href = '/login';
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '登録に失敗しました';
+      setError(errorMessage);
       toast({
         title: 'エラー',
-        description: error instanceof Error ? error.message : '登録に失敗しました',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -60,6 +65,11 @@ export function RegisterForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <Alert variant="destructive" data-testid="error-message">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <FormField
           control={form.control}
           name="name"
@@ -67,9 +77,13 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>お名前</FormLabel>
               <FormControl>
-                <Input placeholder="山田 太郎" {...field} />
+                <Input
+                  data-testid="name-input"
+                  placeholder="山田 太郎"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage data-testid="name-error" />
             </FormItem>
           )}
         />
@@ -80,9 +94,14 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>メールアドレス</FormLabel>
               <FormControl>
-                <Input placeholder="example@example.com" type="email" {...field} />
+                <Input
+                  data-testid="email-input"
+                  placeholder="example@example.com"
+                  type="email"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage data-testid="email-error" />
             </FormItem>
           )}
         />
@@ -93,13 +112,23 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>パスワード</FormLabel>
               <FormControl>
-                <Input placeholder="********" type="password" {...field} />
+                <Input
+                  data-testid="password-input"
+                  placeholder="********"
+                  type="password"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage data-testid="password-error" />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={register.isPending}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={register.isPending}
+          data-testid="register-button"
+        >
           {register.isPending ? '登録中...' : 'アカウントを作成'}
         </Button>
       </form>

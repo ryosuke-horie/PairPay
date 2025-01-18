@@ -1,61 +1,94 @@
 import { useMutation } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
-import type { RegisterInput, RegisterResponse, LoginInput, LoginResponse, ApiError } from '@/types/auth';
+import type { LoginInput, RegisterInput } from '@/types/auth';
+import { config } from '@/config/env';
 
-export function useAuth() {
-  const [backendUrl, setBackendUrl] = useState('http://localhost:8787');
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
-  useEffect(() => {
-    const url = document.querySelector('[data-backend-url]')?.getAttribute('data-backend-url');
-    if (url) {
-      setBackendUrl(url);
-    }
-  }, []);
+interface AuthContext {
+  user: User | null;
+  register: ReturnType<typeof useRegisterMutation>;
+  login: ReturnType<typeof useLoginMutation>;
+}
 
-  const register = useMutation<RegisterResponse, ApiError, RegisterInput>({
-    mutationFn: async (input: RegisterInput) => {
-      const response = await fetch(`${backendUrl}/api/auth/register`, {
+interface RegisterResponse {
+  message: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+interface ApiError {
+  message: string;
+}
+
+interface ApiErrorResponse {
+  error: string;
+}
+
+const useRegisterMutation = () => {
+  return useMutation<RegisterResponse, ApiError, RegisterInput>({
+    mutationFn: async (data) => {
+      const response = await fetch(`${config.backendUrl}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
-        mode: 'cors',
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const error = (await response.json()) as ApiError;
-        throw new Error(error.error || '登録に失敗しました');
+        const errorData = await response.json() as ApiErrorResponse;
+        throw new Error(errorData.error);
       }
 
-      return response.json() as Promise<RegisterResponse>;
+      const result = await response.json() as RegisterResponse;
+      return result;
     },
   });
+};
 
-  const login = useMutation<LoginResponse, ApiError, LoginInput>({
-    mutationFn: async (input: LoginInput) => {
-      const response = await fetch(`${backendUrl}/api/auth/login`, {
+const useLoginMutation = () => {
+  return useMutation<LoginResponse, ApiError, LoginInput>({
+    mutationFn: async (data) => {
+      const response = await fetch(`${config.backendUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(input),
-        mode: 'cors',
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        const error = (await response.json()) as ApiError;
-        throw new Error(error.error || 'ログインに失敗しました');
+        const errorData = await response.json() as ApiErrorResponse;
+        throw new Error(errorData.error || 'Invalid email or password');
       }
 
-      const data = (await response.json()) as LoginResponse;
-      // JWTトークンをローカルストレージに保存
-      localStorage.setItem('token', data.token);
-      return data;
+      const result = await response.json() as LoginResponse;
+      localStorage.setItem('token', result.token);
+      return result;
     },
   });
+};
+
+let currentUser: User | null = null;
+
+export function useAuth(): AuthContext {
+  const register = useRegisterMutation();
+  const login = useLoginMutation();
+
+  // ログイン成功時にユーザー情報を設定
+  if (login.data?.user && !currentUser) {
+    currentUser = login.data.user;
+  }
 
   return {
+    user: currentUser,
     register,
     login,
   };

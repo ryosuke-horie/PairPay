@@ -18,10 +18,12 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import type { LoginInput } from '@/types/auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from 'react';
 
 const formSchema = z.object({
-  email: z.string().email('メールアドレスの形式が正しくありません'),
-  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -30,6 +32,7 @@ export function LoginForm() {
   const { toast } = useToast();
   const { login } = useAuth();
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -41,17 +44,20 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginInput) {
     try {
+      setError(null);
       await login.mutateAsync(values);
       toast({
         title: 'ログイン成功',
         description: 'ログインに成功しました',
       });
-      // ダッシュボードページへリダイレクト
-      router.push('/dashboard');
+      // ホームページへリダイレクト
+      router.push('/');
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password';
+      setError(errorMessage);
       toast({
         title: 'エラー',
-        description: error instanceof Error ? error.message : 'ログインに失敗しました',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
@@ -60,6 +66,11 @@ export function LoginForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {error && (
+          <Alert variant="destructive" data-testid="error-message">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <FormField
           control={form.control}
           name="email"
@@ -67,9 +78,14 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>メールアドレス</FormLabel>
               <FormControl>
-                <Input placeholder="example@example.com" type="email" {...field} />
+                <Input
+                  data-testid="email-input"
+                  placeholder="example@example.com"
+                  type="email"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage data-testid="email-error" />
             </FormItem>
           )}
         />
@@ -80,13 +96,23 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>パスワード</FormLabel>
               <FormControl>
-                <Input placeholder="********" type="password" {...field} />
+                <Input
+                  data-testid="password-input"
+                  placeholder="********"
+                  type="password"
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage data-testid="password-error" />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={login.isPending}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={login.isPending}
+          data-testid="login-button"
+        >
           {login.isPending ? 'ログイン中...' : 'ログイン'}
         </Button>
       </form>
