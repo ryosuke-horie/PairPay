@@ -4,8 +4,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "drizzle-gen": "npx drizzle-kit generate",
-    "migrate:dev": "npx wrangler d1 execute share-purse-db --file=./drizzle/migrations/0000_handy_butterfly.sql --local",
-    "migrate:prod": "npx wrangler d1 execute share-purse-db --file=./drizzle/migrations/0000_handy_butterfly.sql --remote",
+    "migrate:dev": "for file in ./drizzle/migrations/*.sql; do npx wrangler d1 execute share-purse-db --file=\"$file\" --local; done",
+    "migrate:prod": "for file in ./drizzle/migrations/*.sql; do npx wrangler d1 execute share-purse-db --file=\"$file\" --remote; done",
     "studio": "npx drizzle-kit studio"
   },
   "dependencies": {
