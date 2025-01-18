@@ -1,6 +1,6 @@
-import { Context, Next } from 'hono';
+import type { Context, Next } from 'hono';
+import type { Bindings, Variables } from '../types';
 import { verifyJWT } from '../utils/auth';
-import { Bindings, Variables } from '../types';
 
 export async function authMiddleware(
   c: Context<{ Bindings: Bindings; Variables: Variables }>,

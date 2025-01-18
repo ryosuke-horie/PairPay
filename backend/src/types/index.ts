@@ -1,6 +1,6 @@
-import { DrizzleD1Database } from 'drizzle-orm/d1';
-import { ContextVariableMap } from 'hono';
-import { Container } from '../di/container';
+import type { DrizzleD1Database } from 'drizzle-orm/d1';
+import type { ContextVariableMap } from 'hono';
+import type { Container } from '../di/container';
 
 // カスタムバリアブルの型定義
 export interface Variables extends ContextVariableMap {

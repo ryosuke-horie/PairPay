@@ -1,7 +1,7 @@
-import { DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
 import { eq } from 'drizzle-orm';
+import { type DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
 import { users } from '../../drizzle/schema';
-import { UserCreateInput, UserResponse } from '../types';
+import type { UserCreateInput, UserResponse } from '../types';
 
 // ユーザーリポジトリのインターフェース
 export interface IUserRepository {

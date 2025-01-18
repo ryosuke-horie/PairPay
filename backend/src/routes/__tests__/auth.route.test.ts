@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Hono } from 'hono';
-import { Container } from '../../di/container';
-import authRouter from '../auth.route';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Container } from '../../di/container';
 import type { AuthService } from '../../services/auth.service';
-import type { Variables, Bindings } from '../../types';
+import type { Bindings, Variables } from '../../types';
+import authRouter from '../auth.route';
 
 describe('Auth Routes', () => {
   let app: Hono<{ Bindings: Bindings; Variables: Variables }>;

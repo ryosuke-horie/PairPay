@@ -1,9 +1,9 @@
-import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 import { z } from 'zod';
-import { Bindings, Variables } from '../types';
-import { AuthService } from '../services/auth.service';
 import { UserRepository } from '../repositories/user.repository';
+import { AuthService } from '../services/auth.service';
+import type { Bindings, Variables } from '../types';
 
 // バリデーションスキーマ
 const registerSchema = z.object({

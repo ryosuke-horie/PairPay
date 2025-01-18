@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, type Mock, beforeEach } from 'vitest';
-import { AuthService } from '../auth.service';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IUserRepository } from '../../repositories/user.repository';
 import type { UserCreateInput, UserLoginInput, UserResponse } from '../../types';
+import { AuthService } from '../auth.service';
 
 // auth.tsのモック
 vi.mock('../../utils/auth', () => ({

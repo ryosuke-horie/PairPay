@@ -1,6 +1,6 @@
-import { IUserRepository, UserRepository } from '../repositories/user.repository';
-import { AuthService, IAuthService } from '../services/auth.service';
-import { Bindings } from '../types';
+import { type IUserRepository, UserRepository } from '../repositories/user.repository';
+import { AuthService, type IAuthService } from '../services/auth.service';
+import type { Bindings } from '../types';
 
 export interface Container {
   userRepository: IUserRepository;
