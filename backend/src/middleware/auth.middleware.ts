@@ -1,6 +1,6 @@
-import { Context, Next } from 'hono';
+import type { Context, Next } from 'hono';
+import type { Bindings, Variables } from '../types';
 import { verifyJWT } from '../utils/auth';
-import { Bindings, Variables } from '../types';
 
 export async function authMiddleware(
   c: Context<{ Bindings: Bindings; Variables: Variables }>,
@@ -17,10 +17,10 @@ export async function authMiddleware(
   try {
     // JWTの検証
     const payload = await verifyJWT(token, c.env.JWT_SECRET);
-    
+
     // ペイロードをコンテキストに設定
     c.set('user', payload);
-    
+
     await next();
   } catch (error) {
     return c.json({ error: 'Invalid or expired token' }, 401);

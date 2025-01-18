@@ -1,0 +1,63 @@
+name: Lint
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+
+jobs:
+  frontend-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js v22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Cache node modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          frontend/node_modules
+        key: ${{ runner.os }}-node-frontend-${{ hashFiles('frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-frontend-
+
+    - name: Frontend Lint
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run lint
+
+  backend-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js v22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Cache node modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          backend/node_modules
+        key: ${{ runner.os }}-node-backend-${{ hashFiles('backend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-backend-
+
+    - name: Backend Lint
+      working-directory: ./backend
+      run: |
+        npm ci
+        npm run lint

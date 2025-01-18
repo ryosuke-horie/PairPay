@@ -1,5 +1,10 @@
-import { IUserRepository } from '../repositories/user.repository';
-import { LoginResponse, UserCreateInput, UserLoginInput, UserResponse } from '../types';
+import type { IUserRepository } from '../repositories/user.repository';
+import {
+  type LoginResponse,
+  type UserCreateInput,
+  type UserLoginInput,
+  UserResponse,
+} from '../types';
 import { generateJWT, hashPassword } from '../utils/auth';
 
 // 認証サービスのインターフェース
@@ -41,15 +46,12 @@ export class AuthService implements IAuthService {
 
     // パスワードの検証
     const hashedPassword = await hashPassword(input.password);
-    if (hashedPassword !== (user as any).password) {
+    if (hashedPassword !== user.password) {
       throw new Error('Invalid email or password');
     }
 
     // JWTの生成
-    const token = await generateJWT(
-      { id: user.id, email: user.email },
-      this.jwtSecret
-    );
+    const token = await generateJWT({ id: user.id, email: user.email }, this.jwtSecret);
 
     return {
       token,
@@ -57,7 +59,7 @@ export class AuthService implements IAuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-      }
+      },
     };
   }
 }
