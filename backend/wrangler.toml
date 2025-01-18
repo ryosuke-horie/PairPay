@@ -4,8 +4,9 @@ compatibility_date = "2025-01-18"
 
 # compatibility_flags = [ "nodejs_compat" ]
 
-# [vars]
-# MY_VAR = "my-variable"
+[vars]
+# JWT署名用のシークレットキー（本番環境用はCloudflareのダッシュボードで設定）
+JWT_SECRET = "local_development_secret_key_2025"
 
 # [[kv_namespaces]]
 # binding = "MY_KV_NAMESPACE"
