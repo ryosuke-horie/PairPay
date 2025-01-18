@@ -4,7 +4,6 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   e2e-tests:
@@ -37,17 +36,18 @@ jobs:
           npm i -g wrangler
           mkdir -p .wrangler/state/v3/d1/
           wrangler d1 create share-purse-test-db --local || true
-          wrangler d1 execute share-purse-test-db --local < ./drizzle/migrations/0000_handy_butterfly.sql
-          wrangler d1 execute share-purse-test-db --local < ./drizzle/migrations/0001_mature_adam_warlock.sql
+          wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0000_handy_butterfly.sql
+          wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0001_mature_adam_warlock.sql
 
       - name: Start Backend Server
         working-directory: ./backend
         run: |
           npm run dev &
-          sleep 10
-          npx wait-on http://127.0.0.1:8787 -t 60000
         env:
           JWT_SECRET: test_secret_key
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DATABASE_ID: dfb91fa4-b9d4-4c95-9d8d-53dd70b39200
+          CLOUDFLARE_D1_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Run E2E Tests
         working-directory: ./frontend
