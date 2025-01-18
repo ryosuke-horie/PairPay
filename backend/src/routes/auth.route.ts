@@ -26,10 +26,10 @@ const authRouter = new Hono<{
 // ユーザー登録エンドポイント
 authRouter.post('/register', zValidator('json', registerSchema), async (c) => {
   const input = c.req.valid('json');
-  
+
   try {
     await c.var.container.authService.register(input);
-    
+
     return c.json({ message: 'User registered successfully' }, 201);
   } catch (error) {
     if (error instanceof Error) {
@@ -45,7 +45,7 @@ authRouter.post('/register', zValidator('json', registerSchema), async (c) => {
 // ログインエンドポイント
 authRouter.post('/login', zValidator('json', loginSchema), async (c) => {
   const input = c.req.valid('json');
-  
+
   try {
     const result = await c.var.container.authService.login(input);
     return c.json(result);

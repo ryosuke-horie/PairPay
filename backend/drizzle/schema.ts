@@ -1,5 +1,5 @@
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
 
 // ユーザーテーブル
 export const users = sqliteTable('users', {
@@ -25,9 +25,13 @@ export const categories = sqliteTable('categories', {
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   // 支出者のID
-  payerId: integer('payer_id').notNull().references(() => users.id),
+  payerId: integer('payer_id')
+    .notNull()
+    .references(() => users.id),
   // カテゴリーID
-  categoryId: integer('category_id').notNull().references(() => categories.id),
+  categoryId: integer('category_id')
+    .notNull()
+    .references(() => categories.id),
   // 金額（realを使用して小数点以下も扱えるようにする）
   amount: real('amount').notNull(),
   // 説明
@@ -44,9 +48,13 @@ export const transactions = sqliteTable('transactions', {
 export const sharedExpenses = sqliteTable('shared_expenses', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   // 取引ID
-  transactionId: integer('transaction_id').notNull().references(() => transactions.id),
+  transactionId: integer('transaction_id')
+    .notNull()
+    .references(() => transactions.id),
   // 割り当てられるユーザーID
-  userId: integer('user_id').notNull().references(() => users.id),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
   // 負担割合（パーセント）
   sharePercentage: real('share_percentage').notNull(),
   // 負担額

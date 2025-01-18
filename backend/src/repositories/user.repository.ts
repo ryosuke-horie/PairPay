@@ -48,10 +48,13 @@ export class UserRepository implements IUserRepository {
   }
 
   async create(input: UserCreateInput & { password: string }): Promise<void> {
-    await this.db.insert(users).values({
-      name: input.name,
-      email: input.email,
-      password: input.password,
-    }).execute();
+    await this.db
+      .insert(users)
+      .values({
+        name: input.name,
+        email: input.email,
+        password: input.password,
+      })
+      .execute();
   }
 }

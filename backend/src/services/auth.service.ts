@@ -46,10 +46,7 @@ export class AuthService implements IAuthService {
     }
 
     // JWTの生成
-    const token = await generateJWT(
-      { id: user.id, email: user.email },
-      this.jwtSecret
-    );
+    const token = await generateJWT({ id: user.id, email: user.email }, this.jwtSecret);
 
     return {
       token,
@@ -57,7 +54,7 @@ export class AuthService implements IAuthService {
         id: user.id,
         name: user.name,
         email: user.email,
-      }
+      },
     };
   }
 }

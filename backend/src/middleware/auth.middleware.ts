@@ -17,10 +17,10 @@ export async function authMiddleware(
   try {
     // JWTの検証
     const payload = await verifyJWT(token, c.env.JWT_SECRET);
-    
+
     // ペイロードをコンテキストに設定
     c.set('user', payload);
-    
+
     await next();
   } catch (error) {
     return c.json({ error: 'Invalid or expired token' }, 401);

@@ -8,7 +8,9 @@
     "start": "next start",
     "deploy": "opennextjs-cloudflare && wrangler deploy",
     "preview": "opennextjs-cloudflare && wrangler dev",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "lint": "biome check .",
+    "format": "biome check --write ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -61,6 +63,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20250109.0",
     "@opennextjs/cloudflare": "^0.3.8",
     "@types/node": "^20",
