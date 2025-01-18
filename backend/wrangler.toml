@@ -15,14 +15,14 @@ compatibility_date = "2025-01-18"
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
 
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "my-database"
-# database_id = ""
+[[d1_databases]]
+binding = "DB"
+database_name = "share-purse-db"
+database_id = "dfb91fa4-b9d4-4c95-9d8d-53dd70b39200"
 
 # [ai]
 # binding = "AI"
 
-# [observability]
-# enabled = true
+[observability]
+enabled = true
 # head_sampling_rate = 1
