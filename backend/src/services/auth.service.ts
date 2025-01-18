@@ -46,7 +46,7 @@ export class AuthService implements IAuthService {
 
     // パスワードの検証
     const hashedPassword = await hashPassword(input.password);
-    if (hashedPassword !== (user as any).password) {
+    if (hashedPassword !== user.password) {
       throw new Error('Invalid email or password');
     }
 

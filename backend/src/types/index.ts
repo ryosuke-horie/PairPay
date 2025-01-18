@@ -35,6 +35,10 @@ export interface UserResponse {
   email: string;
 }
 
+export interface UserWithPassword extends UserResponse {
+  password: string;
+}
+
 export interface LoginResponse {
   token: string;
   user: UserResponse;

@@ -1,11 +1,11 @@
 import { eq } from 'drizzle-orm';
 import { type DrizzleD1Database, drizzle } from 'drizzle-orm/d1';
 import { users } from '../../drizzle/schema';
-import type { UserCreateInput, UserResponse } from '../types';
+import type { UserCreateInput, UserResponse, UserWithPassword } from '../types';
 
 // ユーザーリポジトリのインターフェース
 export interface IUserRepository {
-  findByEmail(email: string): Promise<UserResponse | undefined>;
+  findByEmail(email: string): Promise<UserWithPassword | undefined>;
   findById(id: number): Promise<UserResponse | undefined>;
   create(input: UserCreateInput & { password: string }): Promise<void>;
 }
@@ -18,7 +18,7 @@ export class UserRepository implements IUserRepository {
     this.db = drizzle(d1);
   }
 
-  async findByEmail(email: string): Promise<UserResponse | undefined> {
+  async findByEmail(email: string): Promise<UserWithPassword | undefined> {
     const user = await this.db
       .select({
         id: users.id,

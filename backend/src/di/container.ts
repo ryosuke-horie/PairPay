@@ -1,6 +1,7 @@
+import type { Context, Next } from 'hono';
 import { type IUserRepository, UserRepository } from '../repositories/user.repository';
 import { AuthService, type IAuthService } from '../services/auth.service';
-import type { Bindings } from '../types';
+import type { Bindings, Variables } from '../types';
 
 export interface Container {
   userRepository: IUserRepository;
@@ -22,8 +23,8 @@ export function createContainer(env: Bindings): Container {
 
 // DIコンテナをHonoのコンテキストに設定するためのミドルウェア
 export function injectContainer(container: Container) {
-  return async (c: any, next: any) => {
-    c.container = container;
+  return async (c: Context<{ Bindings: Bindings; Variables: Variables }>, next: Next) => {
+    c.set('container', container);
     await next();
   };
 }
