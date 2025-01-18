@@ -1,5 +1,6 @@
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { z } from 'zod';
 import type { Bindings, Variables } from '../types';
 
@@ -20,6 +21,17 @@ const authRouter = new Hono<{
   Bindings: Bindings;
   Variables: Variables;
 }>();
+
+// CORSの設定 - 開発用に全許可
+authRouter.use(
+  '*',
+  cors({
+    origin: '*',
+    allowMethods: ['POST', 'GET', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    credentials: false, // originが'*'の場合、credentialsはfalseである必要がある
+  })
+);
 
 // ユーザー登録エンドポイント
 authRouter.post('/register', zValidator('json', registerSchema), async (c) => {
