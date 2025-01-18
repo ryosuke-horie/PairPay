@@ -36,7 +36,9 @@ jobs:
         run: |
           npm i -g wrangler
           wrangler d1 create share-purse-test-db || true
-          wrangler d1 migrations apply share-purse-test-db
+          npm run migrate:dev
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Start Backend Server
         working-directory: ./backend
