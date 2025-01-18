@@ -1,5 +1,5 @@
 interface CloudflareEnv {
-  NEXT_PUBLIC_BACKEND_URL: string;
+  BACKEND_URL: string;
 }
 
 declare global {

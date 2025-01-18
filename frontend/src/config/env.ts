@@ -1,14 +1,21 @@
-const getBackendUrl = (): string => {
-  // Cloudflare Workersの環境
-  if (typeof process === 'undefined') {
-    // @ts-expect-error: env will be injected by CloudflareWorkers
-    return env.BACKEND_URL;
-  }
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-  // Next.jsの環境（ローカル開発環境を含む）
-  return process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8787';
+// SSR時の環境変数取得
+export const getServerConfig = async () => {
+  try {
+    const ctx = await getCloudflareContext();
+    return {
+      backendUrl: ctx.env.BACKEND_URL as string,
+    };
+  } catch {
+    // ローカル環境またはビルド時
+    return {
+      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8787',
+    };
+  }
 };
 
+// クライアントサイドでの環境変数
 export const config = {
-  backendUrl: getBackendUrl(),
+  backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8787',
 };

@@ -5,8 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { config } from '@/config/env';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -30,6 +28,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function RegisterForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const backendUrl = document.querySelector('[data-backend-url]')?.getAttribute('data-backend-url') || 'http://localhost:8787';
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -43,7 +42,7 @@ export function RegisterForm() {
   async function onSubmit(values: FormValues) {
     setIsLoading(true);
     try {
-      const response = await fetch(`${config.backendUrl}/api/auth/register`, {
+      const response = await fetch(`${backendUrl}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
