@@ -1,0 +1,25 @@
+coverage:
+  status:
+    project:
+      default:
+        # カバレッジが2%以上低下した場合に失敗とする
+        target: auto
+        threshold: 2%
+    patch:
+      default:
+        # 新規コードのカバレッジが80%未満の場合に失敗とする
+        target: 80%
+
+# PRにコメントを追加する設定
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# カバレッジ計算から除外するファイル
+ignore:
+  - "frontend/**/*" # フロントエンドのファイルは除外
+  - "backend/drizzle/**/*" # マイグレーションファイルは除外
+  - "**/types/**/*" # 型定義ファイルは除外

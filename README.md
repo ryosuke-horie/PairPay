@@ -1,5 +1,21 @@
 # 共有家計簿 SharePurse
 
+[![Test](https://github.com/r-horie/share-purse/actions/workflows/test.yml/badge.svg)](https://github.com/r-horie/share-purse/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/r-horie/share-purse/branch/main/graph/badge.svg)](https://codecov.io/gh/r-horie/share-purse)
+
+## 開発環境のセットアップ
+
+```bash
+# バックエンドのセットアップ
+cd backend
+npm install
+
+# テストの実行
+npm run test        # テストを監視モードで実行
+npm run test:ci     # テストを1回実行（CI用）
+npm run test:coverage # カバレッジレポートを生成
+```
+
 ## バックエンドのディレクトリ構成
 
 ```
