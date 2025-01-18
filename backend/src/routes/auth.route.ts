@@ -28,10 +28,7 @@ authRouter.post('/register', zValidator('json', registerSchema), async (c) => {
   const input = c.req.valid('json');
   
   try {
-    const userRepository = new UserRepository(c.env.DB);
-    const authService = new AuthService(userRepository, c.env.JWT_SECRET);
-    
-    await authService.register(input);
+    await c.var.container.authService.register(input);
     
     return c.json({ message: 'User registered successfully' }, 201);
   } catch (error) {
@@ -50,10 +47,7 @@ authRouter.post('/login', zValidator('json', loginSchema), async (c) => {
   const input = c.req.valid('json');
   
   try {
-    const userRepository = new UserRepository(c.env.DB);
-    const authService = new AuthService(userRepository, c.env.JWT_SECRET);
-    
-    const result = await authService.login(input);
+    const result = await c.var.container.authService.login(input);
     return c.json(result);
   } catch (error) {
     if (error instanceof Error) {

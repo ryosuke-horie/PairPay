@@ -1,8 +1,10 @@
 import { DrizzleD1Database } from 'drizzle-orm/d1';
 import { ContextVariableMap } from 'hono';
+import { Container } from '../di/container';
 
 // カスタムバリアブルの型定義
 export interface Variables extends ContextVariableMap {
+  container: Container;
   user: {
     id: number;
     email: string;
