@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -16,6 +15,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import type { RegisterInput } from '@/types/auth';
 
 const formSchema = z.object({
   name: z.string().min(1, 'お名前を入力してください'),
@@ -27,15 +28,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [backendUrl, setBackendUrl] = useState('http://localhost:8787');
-
-  useEffect(() => {
-    const url = document.querySelector('[data-backend-url]')?.getAttribute('data-backend-url');
-    if (url) {
-      setBackendUrl(url);
-    }
-  }, []);
+  const { register } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -46,29 +39,13 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(values: FormValues) {
-    setIsLoading(true);
+  async function onSubmit(values: RegisterInput) {
     try {
-      const response = await fetch(`${backendUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-        mode: 'cors',
-      });
-
-      const data = (await response.json()) as { message?: string; error?: string };
-
-      if (!response.ok) {
-        throw new Error(data.error || '登録に失敗しました');
-      }
-
+      await register.mutateAsync(values);
       toast({
         title: '登録完了',
         description: 'アカウントの登録が完了しました',
       });
-
       // ログインページなどへリダイレクト
       // window.location.href = '/login';
     } catch (error) {
@@ -77,8 +54,6 @@ export function RegisterForm() {
         description: error instanceof Error ? error.message : '登録に失敗しました',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -124,8 +99,8 @@ export function RegisterForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? '登録中...' : 'アカウントを作成'}
+        <Button type="submit" className="w-full" disabled={register.isPending}>
+          {register.isPending ? '登録中...' : 'アカウントを作成'}
         </Button>
       </form>
     </Form>
