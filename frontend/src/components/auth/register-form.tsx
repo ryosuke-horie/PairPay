@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -28,7 +28,14 @@ type FormValues = z.infer<typeof formSchema>;
 export function RegisterForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const backendUrl = document.querySelector('[data-backend-url]')?.getAttribute('data-backend-url') || 'http://localhost:8787';
+  const [backendUrl, setBackendUrl] = useState('http://localhost:8787');
+
+  useEffect(() => {
+    const url = document.querySelector('[data-backend-url]')?.getAttribute('data-backend-url');
+    if (url) {
+      setBackendUrl(url);
+    }
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
