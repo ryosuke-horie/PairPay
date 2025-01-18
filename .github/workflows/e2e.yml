@@ -33,11 +33,8 @@ jobs:
       - name: Create D1 Database
         working-directory: ./backend
         run: |
-          npm i -g wrangler
-          mkdir -p .wrangler/state/v3/d1/
-          wrangler d1 create share-purse-test-db --local || true
-          wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0000_handy_butterfly.sql
-          wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0001_mature_adam_warlock.sql
+          npx wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0000_handy_butterfly.sql
+          npx wrangler d1 execute share-purse-test-db --local --file=./drizzle/migrations/0001_mature_adam_warlock.sql
 
       - name: Start Backend Server
         working-directory: ./backend
