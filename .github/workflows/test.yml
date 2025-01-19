@@ -16,11 +16,12 @@ jobs:
       with:
         node-version: 22
 
+    - name: install dependencies
+      run: npm ci
+
     - name: Backend Tests
       working-directory: ./backend
-      run: |
-        npm ci
-        npm run test:ci
+      run: npm run test:ci
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
