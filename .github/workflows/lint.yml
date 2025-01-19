@@ -8,7 +8,7 @@ on:
       - '.gitignore'
 
 jobs:
-  frontend-lint:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,40 +24,22 @@ jobs:
       with:
         path: |
           ~/.npm
+          node_modules
+          packages/*/node_modules
           frontend/node_modules
-        key: ${{ runner.os }}-node-frontend-${{ hashFiles('frontend/package-lock.json') }}
+          backend/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-frontend-
+          ${{ runner.os }}-node-
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Shared Package Lint
+      run: npm run lint --workspace=packages/shared
 
     - name: Frontend Lint
-      working-directory: ./frontend
-      run: |
-        npm ci
-        npm run lint
-
-  backend-lint:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Use Node.js v22
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-
-    - name: Cache node modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          backend/node_modules
-        key: ${{ runner.os }}-node-backend-${{ hashFiles('backend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-backend-
+      run: npm run lint --workspace=frontend
 
     - name: Backend Lint
-      working-directory: ./backend
-      run: |
-        npm ci
-        npm run lint
+      run: npm run lint --workspace=backend
