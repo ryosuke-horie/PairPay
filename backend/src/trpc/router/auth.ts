@@ -1,7 +1,4 @@
-import {
-  loginInputSchema,
-  registerInputSchema,
-} from '@share-purse/shared';
+import { loginInputSchema, registerInputSchema } from '@share-purse/shared';
 import { convertToTRPCError } from '../../utils/error.js';
 import { protectedProcedure, publicProcedure, router } from '../trpc.js';
 
