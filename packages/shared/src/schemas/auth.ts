@@ -1,25 +1,37 @@
-import { z } from "zod";
+import { z } from 'zod';
+import { userSchema, userCreateInputSchema } from '../types/user';
 
-export const registerInputSchema = z.object({
-  name: z.string().min(1, "名前は必須です"),
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  password: z.string().min(8, "パスワードは8文字以上である必要があります"),
-});
-
-export const loginInputSchema = z.object({
-  email: z.string().email("有効なメールアドレスを入力してください"),
-  password: z.string().min(1, "パスワードは必須です"),
-});
-
+// ユーザー登録関連
+export const registerInputSchema = userCreateInputSchema;
 export const registerResponseSchema = z.object({
   message: z.string(),
+});
+
+// ログイン関連
+export const loginInputSchema = z.object({
+  email: z.string().email('有効なメールアドレスを入力してください'),
+  password: z.string().min(1, 'パスワードは必須です'),
 });
 
 export const loginResponseSchema = z.object({
   message: z.string(),
   token: z.string(),
+  user: userSchema,
 });
 
+// エラーと検証
 export const apiErrorSchema = z.object({
   error: z.string(),
 });
+
+export const tokenValidationResponseSchema = z.object({
+  isValid: z.boolean(),
+});
+
+// 型のエクスポート
+export type RegisterInput = z.infer<typeof registerInputSchema>;
+export type RegisterResponse = z.infer<typeof registerResponseSchema>;
+export type LoginInput = z.infer<typeof loginInputSchema>;
+export type LoginResponse = z.infer<typeof loginResponseSchema>;
+export type ApiError = z.infer<typeof apiErrorSchema>;
+export type TokenValidationResponse = z.infer<typeof tokenValidationResponseSchema>;
