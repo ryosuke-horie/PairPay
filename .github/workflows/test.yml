@@ -21,7 +21,7 @@ jobs:
 
     - name: Backend Tests
       working-directory: ./backend
-      run: npm run test:ci
+      run: npm run test:ci --workspace=backend
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
