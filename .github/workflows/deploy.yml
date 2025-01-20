@@ -3,15 +3,13 @@ name: Deploy
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  deploy-backend:
-    name: Deploy Backend
+  build-shared:
+    name: Build Shared Package
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
     
     steps:
       - name: Checkout
@@ -22,13 +20,47 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ./backend/package-lock.json
+          cache-dependency-path: package-lock.json
       
       - name: Install Dependencies
         run: npm ci
       
+      - name: Build Shared Package
+        run: npm run build -w @share-purse/shared
+      
+      - name: Upload Shared Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-build
+          path: packages/shared/dist
+
+  deploy-backend:
+    name: Deploy Backend
+    needs: build-shared
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+      
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Download Shared Build
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-build
+          path: packages/shared/dist
+      
       - name: Lint Backend
-        run: npm run lint
+        run: npm run lint -w backend
       
       - name: Deploy Backend
         uses: cloudflare/wrangler-action@v3
@@ -40,10 +72,8 @@ jobs:
   
   deploy-frontend:
     name: Deploy Frontend
+    needs: build-shared
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     
     steps:
       - name: Checkout
@@ -54,15 +84,22 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ./frontend/package-lock.json
+          cache-dependency-path: package-lock.json
       
       - name: Install Dependencies
         run: npm ci
-
-      - name: Build and Deploy Frontend
+      
+      - name: Download Shared Build
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-build
+          path: packages/shared/dist
+      
+      - name: Build Frontend
+        run: npm run build -w frontend
+      
+      - name: Deploy Frontend
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          npm run build
-          npm run deploy
+        run: npm run deploy -w frontend
