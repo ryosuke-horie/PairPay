@@ -22,6 +22,7 @@ jobs:
     - name: Install Dependencies
       run: |
         npm ci
+        npm run build:shared
 
     - name: Lint All Packages By Biome
       run: npm run lint

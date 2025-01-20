@@ -14,5 +14,10 @@
     "clean": "npm run clean --workspace=@share-purse/shared",
     "lint": "npm run lint --workspaces",
     "format": "npm run format --workspaces"
+  },
+  "overrides": {
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node"
+    }
   }
 }
