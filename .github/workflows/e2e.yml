@@ -19,7 +19,9 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm run build:shared
 
       - name: Install Playwright Browsers
         working-directory: ./frontend
