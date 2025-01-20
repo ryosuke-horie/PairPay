@@ -18,13 +18,22 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Backend Dependencies
-        working-directory: ./backend
-        run: npm ci
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            backend/node_modules
+            frontend/node_modules
+            packages/shared/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-      - name: Install Frontend Dependencies
-        working-directory: ./frontend
-        run: npm ci
+      - name: Install Dependencies
+        run: |
+          npm ci
+          npm run build:shared
 
       - name: Install Playwright Browsers
         working-directory: ./frontend
@@ -37,9 +46,8 @@ jobs:
           npx wrangler d1 execute share-purse-db --local --file=./drizzle/migrations/0001_mature_adam_warlock.sql
 
       - name: Start Backend Server
-        working-directory: ./backend
         run: |
-          npm run dev &
+          npm run dev --workspace=backend &
         env:
           JWT_SECRET: test_secret_key
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -47,8 +55,7 @@ jobs:
           CLOUDFLARE_D1_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Run E2E Tests
-        working-directory: ./frontend
-        run: npm run test:e2e
+        run: npm run test:e2e --workspace=frontend
         env:
           CI: true
           NEXT_PUBLIC_BACKEND_URL: http://localhost:8787

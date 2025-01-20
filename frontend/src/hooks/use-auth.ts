@@ -1,95 +1,99 @@
-import { useMutation } from '@tanstack/react-query';
-import type { LoginInput, RegisterInput } from '@/types/auth';
-import { config } from '@/config/env';
+'use client';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useCallback, useEffect, useState } from 'react';
+import type { LoginInput, RegisterInput, User } from '@share-purse/shared';
+import { trpc } from '../trpc/client';
+import { clearAuthToken, getAuthToken, setAuthToken, validateAuthToken } from '../trpc/provider';
 
-interface AuthContext {
+interface AuthHookResult {
   user: User | null;
-  register: ReturnType<typeof useRegisterMutation>;
-  login: ReturnType<typeof useLoginMutation>;
+  isAuthenticated: boolean;
+  register: (data: RegisterInput) => Promise<void>;
+  login: (data: LoginInput) => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+  error: string | null;
 }
 
-interface RegisterResponse {
-  message: string;
-}
+export function useAuth(): AuthHookResult {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-interface LoginResponse {
-  token: string;
-  user: User;
-}
+  // 認証状態の確認
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          setIsAuthenticated(false);
+          setIsLoading(false);
+          return;
+        }
 
-interface ApiError {
-  message: string;
-}
-
-interface ApiErrorResponse {
-  error: string;
-}
-
-const useRegisterMutation = () => {
-  return useMutation<RegisterResponse, ApiError, RegisterInput>({
-    mutationFn: async (data) => {
-      const response = await fetch(`${config.backendUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json() as ApiErrorResponse;
-        throw new Error(errorData.error);
+        const isValid = await validateAuthToken();
+        if (isValid) {
+          const { user } = await trpc.auth.me.query();
+          setUser(user);
+          setIsAuthenticated(true);
+        } else {
+          clearAuthToken();
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      const result = await response.json() as RegisterResponse;
-      return result;
-    },
-  });
-};
+    checkAuth();
+  }, []);
 
-const useLoginMutation = () => {
-  return useMutation<LoginResponse, ApiError, LoginInput>({
-    mutationFn: async (data) => {
-      const response = await fetch(`${config.backendUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+  const register = async (data: RegisterInput) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      await trpc.auth.register.mutate(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '登録中にエラーが発生しました');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      if (!response.ok) {
-        const errorData = await response.json() as ApiErrorResponse;
-        throw new Error(errorData.error || 'Invalid email or password');
-      }
+  const login = async (data: LoginInput) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await trpc.auth.login.mutate(data);
+      setAuthToken(result.token);
+      setUser(result.user);
+      setIsAuthenticated(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'ログイン中にエラーが発生しました');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      const result = await response.json() as LoginResponse;
-      localStorage.setItem('token', result.token);
-      return result;
-    },
-  });
-};
-
-let currentUser: User | null = null;
-
-export function useAuth(): AuthContext {
-  const register = useRegisterMutation();
-  const login = useLoginMutation();
-
-  // ログイン成功時にユーザー情報を設定
-  if (login.data?.user && !currentUser) {
-    currentUser = login.data.user;
-  }
+  const logout = useCallback(() => {
+    clearAuthToken();
+    setUser(null);
+    setIsAuthenticated(false);
+  }, []);
 
   return {
-    user: currentUser,
+    user,
+    isAuthenticated,
     register,
     login,
+    logout,
+    isLoading,
+    error,
   };
 }

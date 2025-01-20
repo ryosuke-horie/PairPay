@@ -61,7 +61,9 @@ describe('AuthService', () => {
         email: registerInput.email,
       });
 
-      await expect(authService.register(registerInput)).rejects.toThrow('Email already registered');
+      await expect(authService.register(registerInput)).rejects.toThrow(
+        'このメールアドレスは既に登録されています'
+      );
 
       expect(mockUserRepository.create).not.toHaveBeenCalled();
     });
@@ -99,7 +101,9 @@ describe('AuthService', () => {
     it('存在しないメールアドレスの場合エラーをスローすること', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(undefined);
 
-      await expect(authService.login(loginInput)).rejects.toThrow('Invalid email or password');
+      await expect(authService.login(loginInput)).rejects.toThrow(
+        'メールアドレスまたはパスワードが正しくありません'
+      );
     });
 
     it('パスワードが一致しない場合エラーをスローすること', async () => {
@@ -108,7 +112,9 @@ describe('AuthService', () => {
         password: 'hashed_different_password',
       });
 
-      await expect(authService.login(loginInput)).rejects.toThrow('Invalid email or password');
+      await expect(authService.login(loginInput)).rejects.toThrow(
+        'メールアドレスまたはパスワードが正しくありません'
+      );
     });
   });
 });

@@ -41,7 +41,7 @@ test.describe('認証フロー', () => {
 
     // 4. エラーメッセージの表示を確認
     await expect(page.getByTestId('error-message')).toBeVisible();
-    await expect(page.getByTestId('error-message')).toContainText('Invalid email or password');
+    await expect(page.getByTestId('error-message')).toContainText('メールアドレスまたはパスワードが正しくありません');
 
     // 5. URLが変更されていないことを確認
     await expect(page).toHaveURL('/login');
@@ -55,18 +55,18 @@ test.describe('認証フロー', () => {
     await page.getByTestId('register-button').click();
 
     // 3. 各フィールドのバリデーションメッセージを確認
-    await expect(page.getByTestId('name-error')).toContainText('Name is required');
-    await expect(page.getByTestId('email-error')).toContainText('Invalid email format');
-    await expect(page.getByTestId('password-error')).toContainText('Password must be at least 8 characters');
+    await expect(page.getByTestId('name-error')).toContainText('名前は必須です');
+    await expect(page.getByTestId('email-error')).toContainText('有効なメールアドレスを入力してください');
+    await expect(page.getByTestId('password-error')).toContainText('パスワードは8文字以上である必要があります');
 
     // 4. 無効なメールアドレスの入力
     await page.getByTestId('email-input').fill('invalid-email');
     await page.getByTestId('register-button').click();
-    await expect(page.getByTestId('email-error')).toContainText('Invalid email format');
+    await expect(page.getByTestId('email-error')).toContainText('有効なメールアドレスを入力してください');
 
     // 5. 短すぎるパスワードの入力
     await page.getByTestId('password-input').fill('123');
     await page.getByTestId('register-button').click();
-    await expect(page.getByTestId('password-error')).toContainText('Password must be at least 8 characters');
+    await expect(page.getByTestId('password-error')).toContainText('パスワードは8文字以上である必要があります');
   });
 });

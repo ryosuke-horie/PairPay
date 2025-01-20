@@ -1,34 +1,28 @@
-import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { type Metadata } from 'next';
 import './globals.css';
-import { Providers } from './providers';
-
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-});
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
-});
+import { TrpcProvider } from '../trpc/provider';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
-  title: '共同家計簿',
-  description: '共同で家計を管理するためのアプリケーション',
-  robots: 'noindex, nofollow',
+  title: 'Share Purse',
+  description: 'シンプルな家計簿アプリ',
 };
+
+// フォントのローカルスタイル定義
+const fontClass = 'font-geist';
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="ja">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+      <body className={fontClass}>
+        <TrpcProvider>
+          {children}
+          <Toaster />
+        </TrpcProvider>
       </body>
     </html>
   );

@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { registerInputSchema } from '@share-purse/shared';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,25 +16,20 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import type { RegisterInput } from '@/types/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  name: string;
+  email: string;
+  password: string;
+};
 
 export function RegisterForm() {
   const { toast } = useToast();
-  const { register } = useAuth();
-  const [error, setError] = useState<string | null>(null);
+  const { register, isLoading, error } = useAuth();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(registerInputSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -42,21 +37,18 @@ export function RegisterForm() {
     },
   });
 
-  async function onSubmit(values: RegisterInput) {
+  async function onSubmit(values: FormValues) {
     try {
-      setError(null);
-      await register.mutateAsync(values);
+      await register(values);
       toast({
         title: '登録完了',
         description: 'アカウントの登録が完了しました',
       });
       window.location.href = '/login';
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '登録に失敗しました';
-      setError(errorMessage);
+    } catch (err) {
       toast({
         title: 'エラー',
-        description: errorMessage,
+        description: err instanceof Error ? err.message : '登録に失敗しました',
         variant: 'destructive',
       });
     }
@@ -126,10 +118,10 @@ export function RegisterForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={register.isPending}
+          disabled={isLoading}
           data-testid="register-button"
         >
-          {register.isPending ? '登録中...' : 'アカウントを作成'}
+          {isLoading ? '登録中...' : 'アカウントを作成'}
         </Button>
       </form>
     </Form>

@@ -8,56 +8,33 @@ on:
       - '.gitignore'
 
 jobs:
-  frontend-lint:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Use Node.js v22
+    - name: Use Node.js v20
       uses: actions/setup-node@v4
       with:
-        node-version: 22
+        node-version: 20
 
-    - name: Cache node modules
+    - name: Cache Node Modules
       uses: actions/cache@v4
       with:
         path: |
-          ~/.npm
-          frontend/node_modules
-        key: ${{ runner.os }}-node-frontend-${{ hashFiles('frontend/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-frontend-
-
-    - name: Frontend Lint
-      working-directory: ./frontend
-      run: |
-        npm ci
-        npm run lint
-
-  backend-lint:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Use Node.js v22
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-
-    - name: Cache node modules
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
+          node_modules
           backend/node_modules
-        key: ${{ runner.os }}-node-backend-${{ hashFiles('backend/package-lock.json') }}
+          frontend/node_modules
+          packages/shared/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json', '**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-backend-
+          ${{ runner.os }}-node-
 
-    - name: Backend Lint
-      working-directory: ./backend
+    - name: Install Dependencies
       run: |
         npm ci
-        npm run lint
+        npm run build:shared
+
+    - name: Lint All Packages By Biome
+      run: npm run lint

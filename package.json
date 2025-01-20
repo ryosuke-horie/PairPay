@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "npm run dev:shared & npm run dev:apps",
+    "dev:apps": "npm run dev --workspace=frontend & npm run dev --workspace=backend",
+    "dev:shared": "npm run dev --workspace=@share-purse/shared",
+    "build": "npm run build --workspaces",
+    "build:shared": "npm run build --workspace=@share-purse/shared",
+    "clean": "npm run clean --workspace=@share-purse/shared",
+    "lint": "npm run lint --workspaces",
+    "format": "npm run format --workspaces"
+  },
+  "overrides": {
+    "vite": {
+      "rollup": "npm:@rollup/wasm-node"
+    }
+  }
+}

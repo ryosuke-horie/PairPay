@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { loginInputSchema } from '@share-purse/shared';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,47 +17,39 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import type { LoginInput } from '@/types/auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
 
-const formSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  email: string;
+  password: string;
+};
 
 export function LoginForm() {
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { login, isLoading, error } = useAuth();
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(loginInputSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  async function onSubmit(values: LoginInput) {
+  async function onSubmit(values: FormValues) {
     try {
-      setError(null);
-      await login.mutateAsync(values);
+      await login(values);
       toast({
         title: 'ログイン成功',
         description: 'ログインに成功しました',
       });
       // ホームページへリダイレクト
       router.push('/');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password';
-      setError(errorMessage);
+    } catch (err) {
       toast({
         title: 'エラー',
-        description: errorMessage,
+        description: err instanceof Error ? err.message : 'ログインに失敗しました',
         variant: 'destructive',
       });
     }
@@ -110,10 +102,10 @@ export function LoginForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={login.isPending}
+          disabled={isLoading}
           data-testid="login-button"
         >
-          {login.isPending ? 'ログイン中...' : 'ログイン'}
+          {isLoading ? 'ログイン中...' : 'ログイン'}
         </Button>
       </form>
     </Form>

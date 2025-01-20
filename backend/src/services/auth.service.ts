@@ -5,12 +5,19 @@ import {
   type UserLoginInput,
   UserResponse,
 } from '../types';
-import { generateJWT, hashPassword } from '../utils/auth';
+import { generateJWT, hashPassword, verifyJWT } from '../utils/auth.js';
+import { AuthenticationError, DuplicateError } from '../utils/error.js';
+
+export interface TokenPayload {
+  sub: string;
+  email: string;
+}
 
 // 認証サービスのインターフェース
 export interface IAuthService {
   register(input: UserCreateInput): Promise<void>;
   login(input: UserLoginInput): Promise<LoginResponse>;
+  verifyToken(token: string): Promise<TokenPayload>;
 }
 
 // 認証サービスの実装
@@ -24,7 +31,7 @@ export class AuthService implements IAuthService {
     // メールアドレスの重複チェック
     const existingUser = await this.userRepository.findByEmail(input.email);
     if (existingUser) {
-      throw new Error('Email already registered');
+      throw new DuplicateError('このメールアドレスは既に登録されています');
     }
 
     // パスワードのハッシュ化
@@ -41,13 +48,13 @@ export class AuthService implements IAuthService {
     // ユーザーの検索
     const user = await this.userRepository.findByEmail(input.email);
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new AuthenticationError('メールアドレスまたはパスワードが正しくありません');
     }
 
     // パスワードの検証
     const hashedPassword = await hashPassword(input.password);
     if (hashedPassword !== user.password) {
-      throw new Error('Invalid email or password');
+      throw new AuthenticationError('メールアドレスまたはパスワードが正しくありません');
     }
 
     // JWTの生成
@@ -61,5 +68,17 @@ export class AuthService implements IAuthService {
         email: user.email,
       },
     };
+  }
+
+  async verifyToken(token: string): Promise<TokenPayload> {
+    try {
+      const payload = await verifyJWT(token, this.jwtSecret);
+      return {
+        sub: payload.id.toString(),
+        email: payload.email,
+      };
+    } catch (error) {
+      throw new AuthenticationError('トークンが無効です');
+    }
   }
 }

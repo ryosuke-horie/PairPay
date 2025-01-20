@@ -1,0 +1,22 @@
+{
+	"name": "@share-purse/shared",
+	"version": "0.0.1",
+	"private": true,
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"clean": "rm -rf dist",
+		"lint": "biome check .",
+		"format": "biome check --fix ."
+	},
+	"dependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"zod": "^3.24.1"
+	},
+	"devDependencies": {
+		"@types/node": "^22",
+		"typescript": "^5"
+	}
+}
