@@ -1,11 +1,11 @@
-name: Test
+name: Unit Test
 
 on:
   pull_request:
 
 
 jobs:
-  test:
+  backend-unit-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +22,8 @@ jobs:
         npm run build:shared
 
     - name: Backend Tests
-      run: npm run test:ci --workspace=backend
+      run: npm run test:ci
+      working-directory: ./backend
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
