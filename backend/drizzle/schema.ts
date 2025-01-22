@@ -11,16 +11,6 @@ export const users = sqliteTable('users', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-// カテゴリーテーブル
-export const categories = sqliteTable('categories', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  name: text('name').notNull(),
-  // iconは将来的にアイコンを追加する可能性を考慮
-  icon: text('icon'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
-});
-
 // 取引（収支）テーブル
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -28,10 +18,6 @@ export const transactions = sqliteTable('transactions', {
   payerId: integer('payer_id')
     .notNull()
     .references(() => users.id),
-  // カテゴリーID
-  categoryId: integer('category_id')
-    .notNull()
-    .references(() => categories.id),
   // 金額（realを使用して小数点以下も扱えるようにする）
   amount: real('amount').notNull(),
   // 説明
