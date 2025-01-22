@@ -15,6 +15,13 @@
       "when": 1737165662056,
       "tag": "0001_mature_adam_warlock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1737558906359,
+      "tag": "0002_jittery_living_lightning",
+      "breakpoints": true
     }
   ]
 }
