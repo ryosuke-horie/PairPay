@@ -28,10 +28,11 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install Dependencies
-        run: npm i
+        run: |
+          npm i
+          npm run build:shared
 
       - name: Install Playwright Browsers
-        working-directory: ./frontend
         run: npx playwright install --with-deps chromium
 
       - name: Create D1 Database
