@@ -50,6 +50,7 @@ describe('TransactionService', () => {
   describe('createTransaction', () => {
     const validInput: TransactionCreateInput = {
       payerId: 1,
+      title: 'スーパーでの買い物',
       amount: 1000,
       transactionDate: new Date('2024-01-24'),
     };
@@ -62,6 +63,30 @@ describe('TransactionService', () => {
 
       expect(mockUserRepository.findById).toHaveBeenCalledWith(validInput.payerId);
       expect(mockTransactionRepository.create).toHaveBeenCalledWith(validInput);
+    });
+
+    it('タイトルが空の場合エラーをスローすること', async () => {
+      const invalidInput = {
+        ...validInput,
+        title: '',
+      };
+
+      await expect(service.createTransaction(invalidInput)).rejects.toThrow(
+        'Title is required'
+      );
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('タイトルが空白文字のみの場合エラーをスローすること', async () => {
+      const invalidInput = {
+        ...validInput,
+        title: '   ',
+      };
+
+      await expect(service.createTransaction(invalidInput)).rejects.toThrow(
+        'Title is required'
+      );
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
     it('存在しないユーザーIDの場合エラーをスローすること', async () => {
@@ -107,6 +132,7 @@ describe('TransactionService', () => {
         {
           id: 1,
           payerId: 1,
+          title: 'スーパーでの買い物',
           amount: 1000,
           transactionDate: new Date('2024-01-24'),
           createdAt: new Date(),

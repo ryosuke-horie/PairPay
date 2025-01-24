@@ -35,6 +35,7 @@ vi.mock('drizzle-orm/d1', () => ({
 const mockTransaction = {
   id: 1,
   payerId: 1,
+  title: 'スーパーでの買い物',
   amount: 1000,
   transactionDate: new Date('2024-01-24'),
   createdAt: new Date(),
@@ -77,6 +78,7 @@ describe('TransactionRepository', () => {
       expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         createdAt: transactions.createdAt,
@@ -107,6 +109,7 @@ describe('TransactionRepository', () => {
       expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         createdAt: transactions.createdAt,
@@ -131,6 +134,7 @@ describe('TransactionRepository', () => {
     it('取引を正常に作成できること', async () => {
       const input = {
         payerId: 1,
+        title: 'スーパーでの買い物',
         amount: 1000,
         transactionDate: new Date('2024-01-24'),
       };
@@ -140,6 +144,7 @@ describe('TransactionRepository', () => {
       expect(mockDrizzleInstance.insert).toHaveBeenCalled();
       expect(mockDrizzleInstance.values).toHaveBeenCalledWith({
         payerId: input.payerId,
+        title: input.title,
         amount: input.amount,
         transactionDate: input.transactionDate,
       });
@@ -149,6 +154,7 @@ describe('TransactionRepository', () => {
     it('作成に失敗した場合エラーをスローすること', async () => {
       const input = {
         payerId: 1,
+        title: 'スーパーでの買い物',
         amount: 1000,
         transactionDate: new Date('2024-01-24'),
       };
