@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "share-purse",
   "workspaces": [
     "packages/*",
     "frontend",
