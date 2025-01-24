@@ -37,8 +37,7 @@ jobs:
       - name: Create D1 Database
         working-directory: ./backend
         run: |
-          npx wrangler d1 execute share-purse-db --local --file=./drizzle/migrations/0000_handy_butterfly.sql
-          npx wrangler d1 execute share-purse-db --local --file=./drizzle/migrations/0001_mature_adam_warlock.sql
+          npx wrangler d1 execute share-purse-db --local --file=./drizzle/migrations/0000_careful_madame_web.sql
 
       - name: Start Backend Server
         run: |
