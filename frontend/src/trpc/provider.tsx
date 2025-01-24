@@ -1,36 +1,30 @@
-'use client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { httpBatchLink } from '@trpc/client';
+import { useState } from 'react';
+import { api } from './client';
+import type { PropsWithChildren } from 'react';
 
-import { type ReactNode } from 'react';
-import { trpc } from './client';
+export function TrpcProvider({ children }: PropsWithChildren) {
+  const [queryClient] = useState(() => new QueryClient());
+  const [trpcClient] = useState(() =>
+    api.createClient({
+      links: [
+        httpBatchLink({
+          url: '/api/trpc',
+          headers() {
+            const token = localStorage.getItem('token');
+            return {
+              Authorization: token ? `Bearer ${token}` : undefined,
+            };
+          },
+        }),
+      ],
+    })
+  );
 
-// trpcクライアントのグローバル設定
-// アプリケーション起動時に自動的にトークンの検証を行う
-export async function validateAuthToken() {
-  try {
-    const result = await trpc.auth.validateToken.query();
-    return result.isValid;
-  } catch (error) {
-    console.error('Token validation error:', error);
-    return false;
-  }
-}
-
-// トークンのクリア
-export function clearAuthToken() {
-  localStorage.removeItem('token');
-}
-
-// トークンの取得
-export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
-}
-
-// トークンの設定
-export function setAuthToken(token: string) {
-  localStorage.setItem('token', token);
-}
-
-export function TrpcProvider({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+  return (
+    <api.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </api.Provider>
+  );
 }

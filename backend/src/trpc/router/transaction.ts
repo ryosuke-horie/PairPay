@@ -1,12 +1,6 @@
-import { z } from 'zod';
+import { createTransactionSchema } from '@share-purse/shared';
 import { protectedProcedure, router } from '../trpc.js';
 import { convertToTRPCError } from '../../utils/error.js';
-
-// 入力スキーマの定義
-const createTransactionSchema = z.object({
-  amount: z.number().positive('金額は0より大きい値を入力してください'),
-  transactionDate: z.date(),
-});
 
 export const transactionRouter = router({
   // 取引作成
