@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { type CreateTransactionInput, convertFormToApiInput, transactionFormSchema } from "@share-purse/shared";
+import { convertFormToApiInput, transactionFormSchema } from "../../../../packages/shared/src/schemas/transaction";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {

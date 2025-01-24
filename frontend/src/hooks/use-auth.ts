@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { LoginInput, RegisterInput, User } from '@share-purse/shared';
+import type { LoginInput, RegisterInput } from '../../../packages/shared/src/schemas/auth';
+import { User } from '../../../packages/shared/src/types/user';
 import { api } from '../trpc/client';
 
 interface AuthHookResult {

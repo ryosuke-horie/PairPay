@@ -1,4 +1,4 @@
-import { createTransactionSchema } from '@share-purse/shared';
+import { createTransactionSchema } from '../../../../packages/shared/src/schemas/transaction';
 import { convertToTRPCError } from '../../utils/error.js';
 import { protectedProcedure, router } from '../trpc.js';
 
