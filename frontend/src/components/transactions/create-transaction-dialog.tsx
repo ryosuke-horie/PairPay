@@ -65,7 +65,8 @@ export function CreateTransactionDialog() {
   const form = useForm<FormValues>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
-      amount: '',  // 空文字列をデフォルト値に
+      title: '',
+      amount: '',
       transactionDate: new Date(),
     },
   });
@@ -99,6 +100,24 @@ export function CreateTransactionDialog() {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* 取引内容入力 */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>取引内容</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="例：食費、交通費など"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {/* 金額入力 */}
             <FormField
               control={form.control}

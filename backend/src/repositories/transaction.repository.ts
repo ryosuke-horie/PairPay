@@ -4,6 +4,7 @@ import { transactions } from '../../drizzle/schema.js';
 
 export interface TransactionCreateInput {
   payerId: number;
+  title: string;
   amount: number;
   transactionDate: Date;
 }
@@ -11,6 +12,7 @@ export interface TransactionCreateInput {
 export interface TransactionResponse {
   id: number;
   payerId: number;
+  title: string;
   amount: number;
   transactionDate: Date;
   createdAt: Date;
@@ -35,6 +37,7 @@ export class TransactionRepository implements ITransactionRepository {
       .insert(transactions)
       .values({
         payerId: data.payerId,
+        title: data.title,
         amount: data.amount,
         transactionDate: data.transactionDate,
       })
@@ -46,6 +49,7 @@ export class TransactionRepository implements ITransactionRepository {
       .select({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         createdAt: transactions.createdAt,
@@ -61,6 +65,7 @@ export class TransactionRepository implements ITransactionRepository {
       .select({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         createdAt: transactions.createdAt,

@@ -14,6 +14,11 @@ export class TransactionService implements ITransactionService {
 
   async createTransaction(data: TransactionCreateInput): Promise<void> {
     // 入力値のバリデーション（先に実行）
+    // タイトルの検証
+    if (!data.title || data.title.trim().length === 0) {
+      throw new Error('Title is required');
+    }
+
     // 金額の検証
     if (data.amount <= 0) {
       throw new Error('Amount must be greater than 0');

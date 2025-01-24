@@ -14,6 +14,8 @@ export const users = sqliteTable('users', {
 // 取引（収支）テーブル
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  // タイトル（取引の内容）
+  title: text('title').notNull(),
   // 支出者のID
   payerId: integer('payer_id')
     .notNull()

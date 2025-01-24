@@ -1,1 +1,0 @@
-ALTER TABLE `shared_expenses` DROP COLUMN `share_percentage`;

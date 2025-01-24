@@ -8,6 +8,7 @@ export type CreateTransactionOutput = z.output<typeof createTransactionSchema>;
 
 export interface TransactionResponse {
   id: number;
+  title: string;
   payerId: number;
   amount: number;
   transactionDate: Date;
