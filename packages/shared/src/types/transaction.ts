@@ -1,7 +1,10 @@
 import type { z } from 'zod';
 import type { createTransactionSchema } from '../schemas/transaction';
 
-export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
+// zodのpreTransformの型を取得
+export type CreateTransactionInput = z.input<typeof createTransactionSchema>;
+// zodのpostTransformの型を取得（変換後の型）
+export type CreateTransactionOutput = z.output<typeof createTransactionSchema>;
 
 export interface TransactionResponse {
   id: number;

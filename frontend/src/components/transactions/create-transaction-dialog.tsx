@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { type CreateTransactionInput, createTransactionSchema } from "@share-purse/shared";
+import { type CreateTransactionInput, convertFormToApiInput, transactionFormSchema } from "@share-purse/shared";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -31,10 +31,15 @@ import { api } from "@/trpc/client";
 import { useToast } from "@/hooks/use-toast";
 import type { TRPCClientErrorLike } from "@trpc/client";
 import type { AppRouter } from "@/trpc/client";
+import { useState } from "react";
+import type { z } from "zod";
+
+type FormValues = z.infer<typeof transactionFormSchema>;
 
 export function CreateTransactionDialog() {
   const { toast } = useToast();
   const utils = api.useContext();
+  const [isOpen, setIsOpen] = useState(false);
 
   // tRPCのミューテーション
   const createMutation = api.transaction.create.useMutation({
@@ -45,6 +50,7 @@ export function CreateTransactionDialog() {
         title: "取引を登録しました",
       });
       form.reset();
+      setIsOpen(false);  // ダイアログを閉じる
     },
     onError: (error: TRPCClientErrorLike<any>) => {
       toast({
@@ -56,21 +62,31 @@ export function CreateTransactionDialog() {
   });
 
   // フォームの初期化
-  const form = useForm<CreateTransactionInput>({
-    resolver: zodResolver(createTransactionSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(transactionFormSchema),
     defaultValues: {
-      amount: 0,
+      amount: '',  // 空文字列をデフォルト値に
       transactionDate: new Date(),
     },
   });
 
   // フォーム送信
-  const onSubmit = (data: CreateTransactionInput) => {
-    createMutation.mutate(data);
+  const onSubmit = (data: FormValues) => {
+    const apiInput = convertFormToApiInput(data);
+    console.log('送信データ:', {
+      ...apiInput,
+      transactionDate: {
+        value: apiInput.transactionDate,
+        type: typeof apiInput.transactionDate,
+        isDate: apiInput.transactionDate instanceof Date,
+        toISOString: apiInput.transactionDate instanceof Date ? apiInput.transactionDate.toISOString() : 'not a date'
+      }
+    });
+    createMutation.mutate(apiInput);
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>取引を登録</Button>
       </DialogTrigger>
@@ -94,8 +110,7 @@ export function CreateTransactionDialog() {
                     <Input
                       type="number"
                       placeholder="0"
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                      value={field.value}
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
