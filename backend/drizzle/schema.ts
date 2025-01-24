@@ -20,8 +20,6 @@ export const transactions = sqliteTable('transactions', {
     .references(() => users.id),
   // 金額（realを使用して小数点以下も扱えるようにする）
   amount: real('amount').notNull(),
-  // 説明
-  description: text('description'),
   // 取引日
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
   // 共同支出フラグ
