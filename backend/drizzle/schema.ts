@@ -37,8 +37,6 @@ export const sharedExpenses = sqliteTable('shared_expenses', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
-  // 負担割合（パーセント）
-  sharePercentage: real('share_percentage').notNull(),
   // 負担額
   shareAmount: real('share_amount').notNull(),
   // 精算済みフラグ
