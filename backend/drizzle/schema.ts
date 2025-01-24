@@ -22,8 +22,6 @@ export const transactions = sqliteTable('transactions', {
   amount: real('amount').notNull(),
   // 取引日
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
-  // 共同支出フラグ
-  isShared: integer('is_shared', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
