@@ -11,6 +11,7 @@ export const transactionRouter = router({
         const container = ctx.hono.get('container');
         await container.transactionService.createTransaction({
           payerId: Number(ctx.user.id),
+          title: input.title,
           amount: input.amount,
           transactionDate: input.transactionDate,
         });
