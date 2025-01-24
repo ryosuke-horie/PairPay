@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 import { useState } from 'react';
 import { api } from './client';
+import { config } from '../config/env'
 import type { PropsWithChildren } from 'react';
 
 export function TrpcProvider({ children }: PropsWithChildren) {
@@ -12,7 +13,7 @@ export function TrpcProvider({ children }: PropsWithChildren) {
     api.createClient({
       links: [
         httpBatchLink({
-          url: '/api/trpc',
+          url: `${config.backendUrl}/trpc`, 
           headers() {
             const token = localStorage.getItem('token');
             return {
