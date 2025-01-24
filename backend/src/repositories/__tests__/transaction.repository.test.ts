@@ -39,7 +39,7 @@ const mockTransaction = {
   amount: 1000,
   transactionDate: new Date('2024-01-24'),
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 // D1Databaseのモックを作成

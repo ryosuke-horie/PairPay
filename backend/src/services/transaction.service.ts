@@ -1,4 +1,8 @@
-import type { ITransactionRepository, TransactionCreateInput, TransactionResponse } from '../repositories/transaction.repository';
+import type {
+  ITransactionRepository,
+  TransactionCreateInput,
+  TransactionResponse,
+} from '../repositories/transaction.repository';
 import type { IUserRepository } from '../repositories/user.repository';
 
 export interface ITransactionService {
@@ -29,7 +33,7 @@ export class TransactionService implements ITransactionService {
     today.setHours(0, 0, 0, 0);
     const transactionDate = new Date(data.transactionDate);
     transactionDate.setHours(0, 0, 0, 0);
-    
+
     if (transactionDate > today) {
       throw new Error('Transaction date cannot be in the future');
     }

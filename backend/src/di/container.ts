@@ -1,7 +1,10 @@
 import type { Context, Next } from 'hono';
+import {
+  type ITransactionRepository,
+  TransactionRepository,
+} from '../repositories/transaction.repository';
 import { type IUserRepository, UserRepository } from '../repositories/user.repository';
 import { AuthService, type IAuthService } from '../services/auth.service';
-import { type ITransactionRepository, TransactionRepository } from '../repositories/transaction.repository';
 import { type ITransactionService, TransactionService } from '../services/transaction.service';
 import type { Bindings, Variables } from '../types';
 
@@ -19,10 +22,7 @@ export function createContainer(env: Bindings): Container {
 
   // サービスの初期化
   const authService = new AuthService(userRepository, env.JWT_SECRET);
-  const transactionService = new TransactionService(
-    transactionRepository,
-    userRepository
-  );
+  const transactionService = new TransactionService(transactionRepository, userRepository);
 
   return {
     userRepository,

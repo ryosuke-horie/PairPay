@@ -1,12 +1,12 @@
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
-import type { IUserRepository } from '../../repositories/user.repository';
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
   ITransactionRepository,
   TransactionCreateInput,
   TransactionResponse,
 } from '../../repositories/transaction.repository';
-import { TransactionService } from '../transaction.service';
+import type { IUserRepository } from '../../repositories/user.repository';
 import type { UserResponse } from '../../types';
+import { TransactionService } from '../transaction.service';
 
 // モックユーザーデータ
 const mockUser: UserResponse = {
@@ -71,9 +71,7 @@ describe('TransactionService', () => {
         title: '',
       };
 
-      await expect(service.createTransaction(invalidInput)).rejects.toThrow(
-        'Title is required'
-      );
+      await expect(service.createTransaction(invalidInput)).rejects.toThrow('Title is required');
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
@@ -83,18 +81,14 @@ describe('TransactionService', () => {
         title: '   ',
       };
 
-      await expect(service.createTransaction(invalidInput)).rejects.toThrow(
-        'Title is required'
-      );
+      await expect(service.createTransaction(invalidInput)).rejects.toThrow('Title is required');
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
     it('存在しないユーザーIDの場合エラーをスローすること', async () => {
       mockUserRepository.findById.mockResolvedValue(undefined);
 
-      await expect(service.createTransaction(validInput)).rejects.toThrow(
-        'User not found'
-      );
+      await expect(service.createTransaction(validInput)).rejects.toThrow('User not found');
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
@@ -153,9 +147,7 @@ describe('TransactionService', () => {
     it('存在しないユーザーIDの場合エラーをスローすること', async () => {
       mockUserRepository.findById.mockResolvedValue(undefined);
 
-      await expect(service.getTransactionsByPayerId(999)).rejects.toThrow(
-        'User not found'
-      );
+      await expect(service.getTransactionsByPayerId(999)).rejects.toThrow('User not found');
       expect(mockTransactionRepository.findByPayerId).not.toHaveBeenCalled();
     });
   });
