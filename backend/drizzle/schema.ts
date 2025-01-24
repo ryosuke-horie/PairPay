@@ -18,8 +18,8 @@ export const transactions = sqliteTable('transactions', {
   payerId: integer('payer_id')
     .notNull()
     .references(() => users.id),
-  // 金額（realを使用して小数点以下も扱えるようにする）
-  amount: real('amount').notNull(),
+  // 金額
+  amount: integer('amount').notNull(),
   // 取引日
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
