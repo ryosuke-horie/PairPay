@@ -1,35 +1,30 @@
-import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
+import { createTRPCReact } from '@trpc/react-query';
+import { httpBatchLink } from '@trpc/client';
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
-import type { AppRouter } from '../../../backend/src/index.js';
+import type { AppRouter } from '../../../backend/src/trpc/router';
 import { config } from '../config/env';
 
 const getBaseUrl = () => {
   // 開発環境とブラウザからのリクエスト
   if (typeof window !== 'undefined') {
-    return '/trpc';
+    return '/api/trpc';
   }
 
   // サーバーサイドのリクエスト
   return `${config.backendUrl}/trpc`;
 };
 
-export const trpc = createTRPCProxyClient<AppRouter>({
-  links: [
-    httpBatchLink({
-      url: getBaseUrl(),
-      headers() {
-        if (typeof window === 'undefined') return {};
+export const api = createTRPCReact<AppRouter>();
 
-        const token = localStorage.getItem('token');
-        return {
-          Authorization: token ? `Bearer ${token}` : undefined,
-        };
-      },
-    }),
-  ],
-});
+// 型のエクスポート
+export type { AppRouter };
 
 // ルーター入力の型を抽出
 export type RouterInputs = inferRouterInputs<AppRouter>;
 // ルーター出力の型を抽出
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
+
+export type RouterTypes = {
+  inputs: RouterInputs;
+  outputs: RouterOutputs;
+};

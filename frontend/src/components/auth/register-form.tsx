@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { registerInputSchema } from '@share-purse/shared';
+import { registerInputSchema } from '../../../../packages/shared/src/schemas/auth';
 
 import { Button } from '@/components/ui/button';
 import {

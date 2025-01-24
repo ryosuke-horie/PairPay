@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1737163525279,
-      "tag": "0000_handy_butterfly",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1737165662056,
-      "tag": "0001_mature_adam_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1737558906359,
-      "tag": "0002_jittery_living_lightning",
+      "when": 1737734707655,
+      "tag": "0000_careful_madame_web",
       "breakpoints": true
     }
   ]

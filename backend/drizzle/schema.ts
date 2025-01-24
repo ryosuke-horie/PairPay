@@ -14,18 +14,16 @@ export const users = sqliteTable('users', {
 // 取引（収支）テーブル
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
+  // タイトル（取引の内容）
+  title: text('title').notNull(),
   // 支出者のID
   payerId: integer('payer_id')
     .notNull()
     .references(() => users.id),
-  // 金額（realを使用して小数点以下も扱えるようにする）
-  amount: real('amount').notNull(),
-  // 説明
-  description: text('description'),
+  // 金額
+  amount: integer('amount').notNull(),
   // 取引日
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
-  // 共同支出フラグ
-  isShared: integer('is_shared', { mode: 'boolean' }).notNull().default(false),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
@@ -41,8 +39,6 @@ export const sharedExpenses = sqliteTable('shared_expenses', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
-  // 負担割合（パーセント）
-  sharePercentage: real('share_percentage').notNull(),
   // 負担額
   shareAmount: real('share_amount').notNull(),
   // 精算済みフラグ

@@ -1,5 +1,5 @@
 {
-  "name": "share-purse-frontend",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -44,9 +44,9 @@
     "@radix-ui/react-toggle": "^1.1.1",
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@share-purse/shared": "0.0.1",
-    "@tanstack/react-query": "^5.64.1",
+    "@tanstack/react-query": "^4.36.1",
     "@trpc/client": "^10.45.2",
+    "@trpc/react-query": "^10.45.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

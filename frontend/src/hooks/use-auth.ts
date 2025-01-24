@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { LoginInput, RegisterInput, User } from '@share-purse/shared';
-import { trpc } from '../trpc/client';
-import { clearAuthToken, getAuthToken, setAuthToken, validateAuthToken } from '../trpc/provider';
+import type { LoginInput, RegisterInput } from '../../../packages/shared/src/schemas/auth';
+import { User } from '../../../packages/shared/src/types/user';
+import { api } from '../trpc/client';
 
 interface AuthHookResult {
   user: User | null;
@@ -18,27 +18,39 @@ interface AuthHookResult {
 export function useAuth(): AuthHookResult {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const validateTokenQuery = api.auth.validateToken.useQuery(undefined, {
+    enabled: false,
+    retry: false,
+  });
+  
+  const meQuery = api.auth.me.useQuery(undefined, {
+    enabled: false,
+    retry: false,
+  });
 
   // 認証状態の確認
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = getAuthToken();
+        const token = localStorage.getItem('token');
         if (!token) {
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
         }
 
-        const isValid = await validateAuthToken();
-        if (isValid) {
-          const { user } = await trpc.auth.me.query();
-          setUser(user);
-          setIsAuthenticated(true);
+        const result = await validateTokenQuery.refetch();
+        if (result.data?.isValid) {
+          const meResult = await meQuery.refetch();
+          if (meResult.data?.user) {
+            setUser(meResult.data.user);
+            setIsAuthenticated(true);
+          }
         } else {
-          clearAuthToken();
+          localStorage.removeItem('token');
           setIsAuthenticated(false);
         }
       } catch (err) {
@@ -50,13 +62,17 @@ export function useAuth(): AuthHookResult {
     };
 
     checkAuth();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const { mutateAsync: registerMutation } = api.auth.register.useMutation();
+  const { mutateAsync: loginMutation } = api.auth.login.useMutation();
 
   const register = async (data: RegisterInput) => {
     try {
       setIsLoading(true);
       setError(null);
-      await trpc.auth.register.mutate(data);
+      await registerMutation(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '登録中にエラーが発生しました');
       throw err;
@@ -69,8 +85,8 @@ export function useAuth(): AuthHookResult {
     try {
       setIsLoading(true);
       setError(null);
-      const result = await trpc.auth.login.mutate(data);
-      setAuthToken(result.token);
+      const result = await loginMutation(data);
+      localStorage.setItem('token', result.token);
       setUser(result.user);
       setIsAuthenticated(true);
     } catch (err) {
@@ -82,7 +98,7 @@ export function useAuth(): AuthHookResult {
   };
 
   const logout = useCallback(() => {
-    clearAuthToken();
+    localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);
   }, []);

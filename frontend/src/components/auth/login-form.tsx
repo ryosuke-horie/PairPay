@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { loginInputSchema } from '@share-purse/shared';
+import { loginInputSchema } from '../../../../packages/shared/src/schemas/auth';
 
 import { Button } from '@/components/ui/button';
 import {
