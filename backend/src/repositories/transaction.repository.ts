@@ -24,6 +24,7 @@ export interface ITransactionRepository {
   findById(id: number): Promise<TransactionResponse | undefined>;
   findByPayerId(payerId: number): Promise<TransactionResponse[]>;
   findAll(): Promise<TransactionResponse[]>;
+  delete(id: number): Promise<void>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -90,5 +91,9 @@ export class TransactionRepository implements ITransactionRepository {
       })
       .from(transactions)
       .execute();
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.db.delete(transactions).where(eq(transactions.id, id)).execute();
   }
 }

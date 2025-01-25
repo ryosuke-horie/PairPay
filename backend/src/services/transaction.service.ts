@@ -9,6 +9,7 @@ export interface ITransactionService {
   createTransaction(data: TransactionCreateInput): Promise<void>;
   getTransactionsByPayerId(payerId: number): Promise<TransactionResponse[]>;
   getAllTransactions(): Promise<TransactionResponse[]>;
+  deleteTransaction(transactionId: number, userId: number): Promise<void>;
 }
 
 export class TransactionService implements ITransactionService {
@@ -63,5 +64,21 @@ export class TransactionService implements ITransactionService {
   async getAllTransactions(): Promise<TransactionResponse[]> {
     // 全ての取引履歴を取得
     return await this.transactionRepository.findAll();
+  }
+
+  async deleteTransaction(transactionId: number, userId: number): Promise<void> {
+    // 取引の存在確認
+    const transaction = await this.transactionRepository.findById(transactionId);
+    if (!transaction) {
+      throw new Error('指定された取引が見つかりません');
+    }
+
+    // 削除権限の確認（作成者のみ削除可能）
+    if (transaction.payerId !== userId) {
+      throw new Error('この取引を削除する権限がありません');
+    }
+
+    // 取引の削除
+    await this.transactionRepository.delete(transactionId);
   }
 }
