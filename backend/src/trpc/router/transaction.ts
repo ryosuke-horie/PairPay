@@ -26,9 +26,7 @@ export const transactionRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     try {
       const container = ctx.hono.get('container');
-      const transactions = await container.transactionService.getTransactionsByPayerId(
-        Number(ctx.user.id)
-      );
+      const transactions = await container.transactionService.getAllTransactions();
 
       return {
         transactions,

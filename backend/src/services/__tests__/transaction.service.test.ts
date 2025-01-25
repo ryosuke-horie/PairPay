@@ -20,10 +20,12 @@ const mockTransactionRepository: {
   create: Mock;
   findById: Mock;
   findByPayerId: Mock;
+  findAll: Mock;
 } = {
   create: vi.fn(),
   findById: vi.fn(),
   findByPayerId: vi.fn(),
+  findAll: vi.fn(),
 };
 
 const mockUserRepository: {
@@ -149,6 +151,46 @@ describe('TransactionService', () => {
 
       await expect(service.getTransactionsByPayerId(999)).rejects.toThrow('User not found');
       expect(mockTransactionRepository.findByPayerId).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getAllTransactions', () => {
+    it('全ての取引履歴を取得できること', async () => {
+      const mockTransactions: TransactionResponse[] = [
+        {
+          id: 1,
+          payerId: 1,
+          title: 'スーパーでの買い物',
+          amount: 1000,
+          transactionDate: new Date('2024-01-24'),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 2,
+          payerId: 2,
+          title: '食材の買い出し',
+          amount: 2000,
+          transactionDate: new Date('2024-01-25'),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      mockTransactionRepository.findAll.mockResolvedValue(mockTransactions);
+
+      const result = await service.getAllTransactions();
+
+      expect(mockTransactionRepository.findAll).toHaveBeenCalled();
+      expect(result).toEqual(mockTransactions);
+    });
+
+    it('取引が存在しない場合は空配列を返すこと', async () => {
+      mockTransactionRepository.findAll.mockResolvedValue([]);
+
+      const result = await service.getAllTransactions();
+
+      expect(result).toEqual([]);
     });
   });
 });
