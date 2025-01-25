@@ -6,6 +6,7 @@
     "backend"
   ],
   "scripts": {
+    "dev": "concurrently \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "build": "npm run build --workspaces",
     "build:shared": "npm run build -w shared",
     "lint": "npm run lint --workspaces",
@@ -15,5 +16,8 @@
     "vite": {
       "rollup": "npm:@rollup/wasm-node"
     }
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
