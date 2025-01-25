@@ -5,8 +5,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from '@/components/layout/header/header';
 
 export const metadata: Metadata = {
-  title: 'Share Purse',
-  description: 'シンプルな家計簿アプリ',
+  title: '共同家計簿',
+  description: '共同家計簿',
 };
 
 // フォントのローカルスタイル定義
