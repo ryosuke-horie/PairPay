@@ -44,8 +44,8 @@ export function LoginForm() {
         title: 'ログイン成功',
         description: 'ログインに成功しました',
       });
-      // ホームページへリダイレクト
-      router.push('/');
+
+      router.push('/transactions');
     } catch (err) {
       toast({
         title: 'エラー',

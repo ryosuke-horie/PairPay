@@ -24,8 +24,6 @@ test.describe('認証フロー', () => {
     await Promise.all([
       page.getByTestId('login-button').click()
     ]);
-
-    // TODO: 6. ログイン後の表示確認
   });
 
   test('無効な認証情報でのログイン', async ({ page }) => {
