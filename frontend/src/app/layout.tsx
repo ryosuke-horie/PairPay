@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from '@/components/layout/header/header';
 
 export const metadata: Metadata = {
-  title: '共同家計簿',
+  title: 'PairPay|共同家計簿',
   description: '共同家計簿',
 };
 
