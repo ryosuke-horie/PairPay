@@ -9,13 +9,12 @@
 ### セキュリティ考慮事項
 
 - 削除操作は認証済みユーザーのみが実行可能
-- 自分が作成した取引のみ削除可能
 
 ### UIデザイン
 
 - TransactionCardコンポーネントに削除ボタン（ゴミ箱アイコン）を追加
-- 誤操作防止のため、削除前に確認ダイアログを表示
 - 削除成功時はToast通知で完了を表示
+- 削除中はボタンをdisabled状態に
 
 ## 3. コンポーネント設計
 
@@ -24,21 +23,14 @@
 ```
 components/transactions/
   ├── transaction-list.tsx       // 既存
-  ├── transaction-card.tsx      // 削除ボタンの追加
-  └── delete-transaction-dialog.tsx  // 新規：削除確認ダイアログ
+  └── transaction-card.tsx      // 削除ボタンの追加
 ```
 
 ### TransactionCard コンポーネントの変更
 
-- 削除ボタンの追加（右上にゴミ箱アイコン）
-- 削除確認ダイアログの表示トリガー
+- 削除ボタンの追加（右端にゴミ箱アイコン）
 - 削除中のローディング状態の表示
-
-### DeleteTransactionDialog コンポーネント（新規）
-
-- shadcn/uiのAlertDialogを使用
-- 削除確認メッセージの表示
-- 削除実行/キャンセルボタン
+- Toast通知の表示
 
 ## 4. APIの設計
 
@@ -56,27 +48,25 @@ components/transactions/
 
 - `deleteTransaction(transactionId: number, userId: number): Promise<void>`
   - 取引の存在確認
-  - 削除権限の確認（作成者のみ削除可能）
-  - 論理削除/物理削除の実行
+  - 物理削除の実行
 
 ### TransactionRepository
 
 - `delete(transactionId: number): Promise<void>`
-  - DBからの削除処理
+  - 関連する共同支出レコードの削除
+  - 取引レコードの削除
 
 ## 6. データフロー
 
 1. ユーザーが取引カードの削除ボタンをクリック
-2. 削除確認ダイアログを表示
-3. 確認後、tRPC mutationを実行
-4. バックエンドで権限確認
-5. DBから取引を削除
-6. フロントエンドで取引一覧を更新
-7. 完了通知を表示
+2. tRPC mutationを実行
+3. バックエンドで取引の存在確認
+4. DBから取引を削除
+5. フロントエンドで取引一覧を更新
+6. 完了通知を表示
 
 ## 7. エラーハンドリング
 
-- 権限エラー: "この取引を削除する権限がありません"
 - 存在しない取引: "指定された取引が見つかりません"
 - 通信エラー: "削除中にエラーが発生しました。再度お試しください"
 
@@ -87,6 +77,6 @@ components/transactions/
 - TransactionService
   - 正常な削除処理
   - 存在しない取引のエラー処理
-  - 権限エラーの処理
 - TransactionRepository
-  - 削除処理の確認
+  - 共同支出レコードの削除処理
+  - 取引レコードの削除処理
