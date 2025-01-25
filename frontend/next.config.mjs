@@ -4,14 +4,22 @@ const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+    // 環境変数をクライアントに公開
+    env: {
+        NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    },
     // バックエンドへのプロキシ設定
     rewrites: async () => {
-        return [
-            {
-                source: '/trpc/:path*',
-                destination: 'http://127.0.0.1:8787/trpc/:path*', // localhostではなく127.0.0.1を使用
-            },
-        ];
+        // 開発環境の場合のみローカルプロキシを設定
+        if (process.env.NODE_ENV === 'development') {
+            return [
+                {
+                    source: '/trpc/:path*',
+                    destination: 'http://127.0.0.1:8787/trpc/:path*',
+                },
+            ];
+        }
+        return [];
     },
 };
 

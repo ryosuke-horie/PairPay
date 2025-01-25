@@ -13,13 +13,13 @@
     "enabled": true
   },
   "vars": {
-    "NEXT_PUBLIC_BACKEND_URL": "https://api.share-purse.workers.dev"
+    "NEXT_PUBLIC_BACKEND_URL": "https://share-purse-backend.ryosuke-horie37.workers.dev"
   },
   "env": {
     "staging": {
       "name": "share-purse-frontend-staging",
       "vars": {
-        "NEXT_PUBLIC_BACKEND_URL": "https://api-staging.share-purse.workers.dev"
+        "NEXT_PUBLIC_BACKEND_URL": "https://share-purse-backend.ryosuke-horie37.workers.dev"
       }
     }
   }

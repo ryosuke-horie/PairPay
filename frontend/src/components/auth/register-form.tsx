@@ -38,6 +38,14 @@ export function RegisterForm() {
   });
 
   async function onSubmit(values: FormValues) {
+    // デバッグログ
+    console.log('[Debug] Register Environment:', {
+      nodeEnv: process.env.NODE_ENV,
+      backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
+      window: typeof window !== 'undefined' ? 'browser' : 'server',
+      values
+    });
+
     try {
       await register(values);
       toast({
