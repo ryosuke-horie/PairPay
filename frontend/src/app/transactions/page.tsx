@@ -30,9 +30,9 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="container py-6">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">一覧画面</h1>
+    <div className="py-4 sm:py-6">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <h1 className="text-xl font-bold sm:text-3xl">一覧画面</h1>
         <CreateTransactionDialog />
       </div>
 
