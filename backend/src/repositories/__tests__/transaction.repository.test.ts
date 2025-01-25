@@ -164,4 +164,34 @@ describe('TransactionRepository', () => {
       await expect(repository.create(input)).rejects.toThrow('Database error');
     });
   });
+
+  describe('findAll', () => {
+    it('全ての取引を正常に取得できること', async () => {
+      const mockTransactions = [mockTransaction];
+      mockDrizzleInstance.execute.mockResolvedValue(mockTransactions);
+
+      const result = await repository.findAll();
+
+      expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
+        id: transactions.id,
+        payerId: transactions.payerId,
+        title: transactions.title,
+        amount: transactions.amount,
+        transactionDate: transactions.transactionDate,
+        createdAt: transactions.createdAt,
+        updatedAt: transactions.updatedAt,
+      });
+      expect(mockDrizzleInstance.from).toHaveBeenCalledWith(transactions);
+      expect(mockDrizzleInstance.execute).toHaveBeenCalled();
+      expect(result).toEqual(mockTransactions);
+    });
+
+    it('取引が存在しない場合は空配列を返すこと', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue([]);
+
+      const result = await repository.findAll();
+
+      expect(result).toEqual([]);
+    });
+  });
 });
