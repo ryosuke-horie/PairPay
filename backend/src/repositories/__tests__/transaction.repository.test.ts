@@ -1,12 +1,13 @@
 import { eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
-import { transactions } from '../../../drizzle/schema';
+import { sharedExpenses, transactions } from '../../../drizzle/schema';
 import { TransactionRepository } from '../transaction.repository';
 
 type MockDb = {
   select: Mock;
   insert: Mock;
+  delete: Mock;
   from: Mock;
   where: Mock;
   get: Mock;
@@ -19,6 +20,7 @@ type MockDb = {
 const mockDrizzleInstance = {
   select: vi.fn(),
   insert: vi.fn(),
+  delete: vi.fn(),
   from: vi.fn(),
   where: vi.fn(),
   get: vi.fn(),
@@ -62,6 +64,7 @@ describe('TransactionRepository', () => {
     // DrizzleD1Databaseのメソッドをチェーン可能に設定
     mockDrizzleInstance.select.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.insert.mockReturnValue(mockDrizzleInstance);
+    mockDrizzleInstance.delete.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.from.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
@@ -192,6 +195,31 @@ describe('TransactionRepository', () => {
       const result = await repository.findAll();
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('delete', () => {
+    it('取引を正常に削除できること', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue(undefined);
+
+      await repository.delete(1);
+
+      // 共同支出レコードの削除が先に実行されること
+      expect(mockDrizzleInstance.delete).toHaveBeenNthCalledWith(1, sharedExpenses);
+      expect(mockDrizzleInstance.where).toHaveBeenNthCalledWith(
+        1,
+        eq(sharedExpenses.transactionId, 1)
+      );
+
+      // その後、取引レコードが削除されること
+      expect(mockDrizzleInstance.delete).toHaveBeenNthCalledWith(2, transactions);
+      expect(mockDrizzleInstance.where).toHaveBeenNthCalledWith(2, eq(transactions.id, 1));
+    });
+
+    it('削除に失敗した場合エラーをスローすること', async () => {
+      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(repository.delete(1)).rejects.toThrow('Database error');
     });
   });
 });
