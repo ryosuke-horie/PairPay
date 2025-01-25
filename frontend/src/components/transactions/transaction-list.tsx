@@ -47,10 +47,10 @@ export const TransactionList = () => {
       {data.transactions.map((transaction: Transaction) => (
         <TransactionCard
           key={transaction.id}
+          id={transaction.id}
           title={transaction.title}
           amount={transaction.amount}
           transactionDate={new Date(transaction.transactionDate)}
-          payerName="ユーザー名" // TODO: ユーザー名の取得を実装
         />
       ))}
     </div>
