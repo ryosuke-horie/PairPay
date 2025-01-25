@@ -8,6 +8,7 @@ import type { IUserRepository } from '../repositories/user.repository';
 export interface ITransactionService {
   createTransaction(data: TransactionCreateInput): Promise<void>;
   getTransactionsByPayerId(payerId: number): Promise<TransactionResponse[]>;
+  getAllTransactions(): Promise<TransactionResponse[]>;
 }
 
 export class TransactionService implements ITransactionService {
@@ -57,5 +58,10 @@ export class TransactionService implements ITransactionService {
 
     // 取引履歴の取得
     return await this.transactionRepository.findByPayerId(payerId);
+  }
+
+  async getAllTransactions(): Promise<TransactionResponse[]> {
+    // 全ての取引履歴を取得
+    return await this.transactionRepository.findAll();
   }
 }

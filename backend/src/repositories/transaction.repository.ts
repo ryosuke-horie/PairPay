@@ -23,6 +23,7 @@ export interface ITransactionRepository {
   create(data: TransactionCreateInput): Promise<void>;
   findById(id: number): Promise<TransactionResponse | undefined>;
   findByPayerId(payerId: number): Promise<TransactionResponse[]>;
+  findAll(): Promise<TransactionResponse[]>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -73,6 +74,21 @@ export class TransactionRepository implements ITransactionRepository {
       })
       .from(transactions)
       .where(eq(transactions.payerId, payerId))
+      .execute();
+  }
+
+  async findAll(): Promise<TransactionResponse[]> {
+    return await this.db
+      .select({
+        id: transactions.id,
+        payerId: transactions.payerId,
+        title: transactions.title,
+        amount: transactions.amount,
+        transactionDate: transactions.transactionDate,
+        createdAt: transactions.createdAt,
+        updatedAt: transactions.updatedAt,
+      })
+      .from(transactions)
       .execute();
   }
 }
