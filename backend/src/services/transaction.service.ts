@@ -73,11 +73,6 @@ export class TransactionService implements ITransactionService {
       throw new Error('指定された取引が見つかりません');
     }
 
-    // 削除権限の確認（作成者のみ削除可能）
-    if (transaction.payerId !== userId) {
-      throw new Error('この取引を削除する権限がありません');
-    }
-
     // 取引の削除
     await this.transactionRepository.delete(transactionId);
   }

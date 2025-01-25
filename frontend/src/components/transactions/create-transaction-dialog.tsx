@@ -74,15 +74,6 @@ export function CreateTransactionDialog() {
   // フォーム送信
   const onSubmit = (data: FormValues) => {
     const apiInput = convertFormToApiInput(data);
-    console.log('送信データ:', {
-      ...apiInput,
-      transactionDate: {
-        value: apiInput.transactionDate,
-        type: typeof apiInput.transactionDate,
-        isDate: apiInput.transactionDate instanceof Date,
-        toISOString: apiInput.transactionDate instanceof Date ? apiInput.transactionDate.toISOString() : 'not a date'
-      }
-    });
     createMutation.mutate(apiInput);
   };
 

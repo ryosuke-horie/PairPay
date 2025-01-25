@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
-import { transactions } from '../../drizzle/schema.js';
+import { sharedExpenses, transactions } from '../../drizzle/schema.js';
 
 export interface TransactionCreateInput {
   payerId: number;
@@ -94,6 +94,10 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async delete(id: number): Promise<void> {
+    // まず関連する共同支出レコードを削除
+    await this.db.delete(sharedExpenses).where(eq(sharedExpenses.transactionId, id)).execute();
+
+    // 次に取引レコードを削除
     await this.db.delete(transactions).where(eq(transactions.id, id)).execute();
   }
 }
