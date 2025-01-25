@@ -21,11 +21,13 @@ const mockTransactionRepository: {
   findById: Mock;
   findByPayerId: Mock;
   findAll: Mock;
+  delete: Mock;
 } = {
   create: vi.fn(),
   findById: vi.fn(),
   findByPayerId: vi.fn(),
   findAll: vi.fn(),
+  delete: vi.fn(),
 };
 
 const mockUserRepository: {
@@ -191,6 +193,38 @@ describe('TransactionService', () => {
       const result = await service.getAllTransactions();
 
       expect(result).toEqual([]);
+    });
+
+    describe('deleteTransaction', () => {
+      const mockTransaction: TransactionResponse = {
+        id: 1,
+        payerId: 1,
+        title: 'Test Transaction',
+        amount: 1000,
+        transactionDate: new Date('2024-01-24'),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      it('正常に取引を削除できること', async () => {
+        // 取引の存在確認のモック
+        mockTransactionRepository.findById.mockResolvedValue(mockTransaction);
+        mockTransactionRepository.delete.mockResolvedValue(undefined);
+
+        await service.deleteTransaction(1, 1);
+
+        expect(mockTransactionRepository.findById).toHaveBeenCalledWith(1);
+        expect(mockTransactionRepository.delete).toHaveBeenCalledWith(1);
+      });
+
+      it('存在しない取引の場合エラーをスローすること', async () => {
+        mockTransactionRepository.findById.mockResolvedValue(undefined);
+
+        await expect(service.deleteTransaction(999, 1)).rejects.toThrow(
+          '指定された取引が見つかりません'
+        );
+        expect(mockTransactionRepository.delete).not.toHaveBeenCalled();
+      });
     });
   });
 });
