@@ -19,7 +19,7 @@ export function Header() {
               href={isAuthenticated ? '/transactions' : '/'}
               className="text-lg font-semibold"
             >
-              Share Purse
+              PairPay
             </Link>
             <nav className="hidden md:flex">
               <NavMenu />
