@@ -21,9 +21,11 @@ export default function RootLayout({
     <html lang="ja" className="h-full">
       <body className={`${fontClass} relative h-full`}>
         <TrpcProvider>
-          <main className="relative flex min-h-full flex-col">
+          <main className="relative flex min-h-full flex-col bg-background">
             <Header />
-            {children}
+            <div className="flex-1 px-2 pb-safe-area-inset-bottom sm:px-4">
+              {children}
+            </div>
           </main>
           <Toaster />
         </TrpcProvider>
