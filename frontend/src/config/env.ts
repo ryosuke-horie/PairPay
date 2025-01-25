@@ -5,7 +5,7 @@ export const getServerConfig = async () => {
   try {
     const ctx = await getCloudflareContext();
     return {
-      backendUrl: ctx.env.BACKEND_URL as string,
+      backendUrl: ctx.env.NEXT_PUBLIC_BACKEND_URL as string,
     };
   } catch {
     // ローカル環境またはビルド時
