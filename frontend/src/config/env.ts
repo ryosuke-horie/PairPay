@@ -1,7 +1,8 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// デフォルトのバックエンドURL（本番環境用）
+// デフォルトのバックエンドURL設定
 const DEFAULT_BACKEND_URL = 'https://share-purse-backend.ryosuke-horie37.workers.dev';
+const DEVELOPMENT_BACKEND_URL = 'http://localhost:8787';
 
 // SSR時の環境変数取得
 export const getServerConfig = async () => {
@@ -14,7 +15,7 @@ export const getServerConfig = async () => {
     // ローカル環境またはビルド時
     return {
       backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL ||
-        (process.env.NODE_ENV === 'development' ? 'http://localhost:8787' : DEFAULT_BACKEND_URL),
+        (process.env.NODE_ENV === 'development' ? DEVELOPMENT_BACKEND_URL : DEFAULT_BACKEND_URL),
     };
   }
 };
@@ -22,5 +23,5 @@ export const getServerConfig = async () => {
 // クライアントサイドでの環境変数
 export const config = {
   backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL ||
-    (process.env.NODE_ENV === 'development' ? 'http://localhost:8787' : DEFAULT_BACKEND_URL),
+    (process.env.NODE_ENV === 'development' ? DEVELOPMENT_BACKEND_URL : DEFAULT_BACKEND_URL),
 };

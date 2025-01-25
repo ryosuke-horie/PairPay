@@ -6,11 +6,15 @@ import { config, getServerConfig } from '../config/env';
 const getBaseUrl = async () => {
   // ブラウザからのリクエスト
   if (typeof window !== 'undefined') {
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? '/api/trpc'
-      : `${config.backendUrl}/trpc`;
+    // デバッグログ
+    console.log('[Debug] TRPC Client Environment (Browser):', {
+      nodeEnv: process.env.NODE_ENV,
+      backendUrl: config.backendUrl,
+      finalUrl: `${config.backendUrl}/trpc`
+    });
 
-    return baseUrl;
+    // 環境に関係なく、常にバックエンドのURLを使用
+    return `${config.backendUrl}/trpc`;
   }
 
   // サーバーサイドのリクエスト
@@ -20,7 +24,7 @@ const getBaseUrl = async () => {
     console.log('[Debug] TRPC Client Environment (Server):', {
       nodeEnv: process.env.NODE_ENV,
       backendUrl: serverConfig.backendUrl,
-      configBackendUrl: config.backendUrl
+      finalUrl: `${serverConfig.backendUrl}/trpc`
     });
     return `${serverConfig.backendUrl}/trpc`;
   } catch (error) {
