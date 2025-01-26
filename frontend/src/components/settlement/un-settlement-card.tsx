@@ -15,6 +15,8 @@ interface UnSettlementCardProps {
   payerId: number;
   firstShare: number;
   secondShare: number;
+  firstShareRatio: number;
+  secondShareRatio: number;
   onUpdateShare: (id: number, shareRatio: number) => Promise<void>;
 }
 
@@ -56,9 +58,12 @@ export const UnSettlementCard = (props: UnSettlementCardProps) => {
                 <Pencil className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-start gap-3 sm:gap-4">
+            <div className="flex items-end gap-3 sm:gap-4">
               <div className="text-right">
                 <p className="text-base font-medium sm:text-sm">{formatJPY(props.amount)}</p>
+                <p className="text-sm text-muted-foreground">
+                  支払う額: {formatJPY(props.firstShare)}
+                </p>
               </div>
               <Button
                 variant="ghost"
@@ -77,7 +82,7 @@ export const UnSettlementCard = (props: UnSettlementCardProps) => {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         title={props.title}
-        currentShareRatio={0.5}
+        currentShareRatio={props.secondShareRatio}
         totalAmount={props.amount}
         onSubmit={async (shareRatio) => {
           await props.onUpdateShare(props.id, shareRatio);

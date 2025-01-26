@@ -56,7 +56,7 @@ export default function SettlementsPage() {
   const handleUpdateShare = async (id: number, shareRatio: number) => {
     try {
       const settlement = settlements?.transactions.find(t => t.id === id);
-      const shareAmount = settlement ? Math.round(settlement.amount * (shareRatio / 100)) : 0;
+      const shareAmount = settlement ? Math.round(settlement.amount * shareRatio) : 0;
       
       await updateShareMutation.mutateAsync({
         settlementId: id,
