@@ -14,6 +14,7 @@ describe('SettlementService', () => {
     findAll: vi.fn(),
     delete: vi.fn(),
     settleTransaction: vi.fn(),
+    updateShare: vi.fn(),
   };
 
   const userRepository: IUserRepository = {
@@ -120,6 +121,21 @@ describe('SettlementService', () => {
       vi.mocked(transactionRepository.settleTransaction).mockRejectedValue(error);
 
       await expect(settlementService.settle(settlementId)).rejects.toThrow(error);
+    });
+  });
+
+  describe('updateShare', () => {
+    test('正常に負担割合・負担金額の更新が完了する', async () => {
+      const settlementId = 1;
+      vi.mocked(transactionRepository.updateShare).mockResolvedValue();
+    });
+
+    test('負担割合・負担金額の更新でエラーが発生した場合、エラーがスローされる', async () => {
+      const settlementId = 1;
+      const error = new Error('負担割合・金額の更新に失敗しました');
+      vi.mocked(transactionRepository.updateShare).mockRejectedValue(error);
+
+      await expect(settlementService.updateShare(settlementId, 0.5, 500)).rejects.toThrow(error);
     });
   });
 });

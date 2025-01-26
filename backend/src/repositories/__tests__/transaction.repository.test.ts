@@ -385,9 +385,7 @@ describe('TransactionRepository', () => {
       // updateの呼び出しを確認
       expect(mockDrizzleInstance.update).toHaveBeenCalledWith(sharedExpenses);
       expect(mockDrizzleInstance.set).toHaveBeenCalledWith({ isSettled: true });
-      expect(mockDrizzleInstance.where).toHaveBeenCalledWith(
-        eq(sharedExpenses.transactionId, 1)
-      );
+      expect(mockDrizzleInstance.where).toHaveBeenCalledWith(eq(sharedExpenses.transactionId, 1));
       expect(mockDrizzleInstance.execute).toHaveBeenCalled();
     });
 
@@ -401,6 +399,18 @@ describe('TransactionRepository', () => {
       mockDrizzleInstance.execute.mockResolvedValue(undefined);
 
       await expect(repository.settleTransaction(999)).resolves.not.toThrow();
+    });
+  });
+
+  describe('updateShare', () => {
+    it('負担割合・負担金額の更新が正常に完了すること', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue(undefined);
+    });
+
+    it('負担割合・負担金額の更新でエラーが発生した場合、エラーがスローされること', async () => {
+      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(repository.updateShare(1, 0.5, 500)).rejects.toThrow('Database error');
     });
   });
 });

@@ -33,4 +33,30 @@ export const settlementRouter = router({
         throw error;
       }
     }),
+
+    // 負担割合・負担金額の更新
+  updateShare: protectedProcedure
+    .input(
+      z.object({
+        settlementId: z.number(),
+        shareRatio: z.number().min(0).max(100),
+        shareAmount: z.number().min(0)
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const container = ctx.hono.get('container');
+      try {
+        await container.settlementService.updateShare(
+          input.settlementId,
+          input.shareRatio / 100, // パーセント表記から小数に変換
+          input.shareAmount
+        );
+        return { success: true };
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(`負担割合・金額の更新に失敗しました: ${error.message}`);
+        }
+        throw error;
+      }
+    })
 });
