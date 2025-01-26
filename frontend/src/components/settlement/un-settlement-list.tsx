@@ -10,6 +10,8 @@ interface UnSettlementListProps {
     payerId: number;
     firstShare: number;
     secondShare: number;
+    firstShareRatio: number;
+    secondShareRatio: number;
   }[];
   onUpdateShare: (id: number, shareRatio: number) => Promise<void>;
 }

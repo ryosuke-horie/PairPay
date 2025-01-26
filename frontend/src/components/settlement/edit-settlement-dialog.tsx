@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useEffect } from "react";
+import { formatJPY } from '@/lib/utils';
 
 const formSchema = z.object({
   shareRatio: z
@@ -50,8 +51,8 @@ export function EditSettlementDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      shareRatio: currentShareRatio * 100,
-      shareAmount: Math.ceil(totalAmount * currentShareRatio),
+      shareRatio: currentShareRatio,
+      shareAmount: Math.round(totalAmount * (currentShareRatio / 100)),
     },
   });
 
@@ -61,30 +62,26 @@ export function EditSettlementDialog({
   // 負担割合が変更されたら金額を更新
   useEffect(() => {
     const newAmount = Math.ceil(totalAmount * (watchShareRatio / 100));
-    if (newAmount !== watchShareAmount) {
+    if (Math.abs(newAmount - watchShareAmount) > 1) {
       form.setValue("shareAmount", newAmount, {
         shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
       });
     }
-  }, [watchShareRatio, totalAmount]);
+  }, [watchShareRatio, totalAmount, form]);
 
   // 金額が変更されたら負担割合を更新
   useEffect(() => {
-    const newRatio = (watchShareAmount / totalAmount) * 100;
-    if (newRatio !== watchShareRatio) {
+    const newRatio = Math.round((watchShareAmount / totalAmount) * 100);
+    if (Math.abs(newRatio - watchShareRatio) > 0.1) {
       form.setValue("shareRatio", newRatio, {
         shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
       });
     }
-  }, [watchShareAmount, totalAmount]);
+  }, [watchShareAmount, totalAmount, form]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      // 100で割って0-1の値に変換
+      // 既に0-100の値なので、100で割って0-1の値に変換
       await onSubmit(values.shareRatio / 100);
       onOpenChange(false);
     } catch (error) {
@@ -109,11 +106,11 @@ export function EditSettlementDialog({
                   <FormControl>
                     <Input
                       type="number"
-                      step="5"
+                      step="1"
                       min="0"
                       max="100"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -135,6 +132,9 @@ export function EditSettlementDialog({
                       onChange={(e) => field.onChange(parseInt(e.target.value))}
                     />
                   </FormControl>
+                  <div className="text-sm text-muted-foreground">
+                    表示金額: {formatJPY(field.value)}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

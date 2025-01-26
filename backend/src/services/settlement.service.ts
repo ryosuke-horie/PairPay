@@ -1,5 +1,4 @@
 import type { ITransactionRepository } from '../repositories/transaction.repository';
-import type { IUserRepository } from '../repositories/user.repository';
 
 // 未精算取引のリスト
 export interface UnSettledTransactionList {
@@ -10,6 +9,8 @@ export interface UnSettledTransactionList {
     amount: number;
     firstShare: number;
     secondShare: number;
+    firstShareRatio: number;
+    secondShareRatio: number;
     transactionDate: Date;
   }[];
 }
@@ -21,10 +22,7 @@ export interface ISettlementService {
 }
 
 export class SettlementService implements ISettlementService {
-  constructor(
-    private transactionRepository: ITransactionRepository,
-    private userRepository: IUserRepository
-  ) {}
+  constructor(private transactionRepository: ITransactionRepository) {}
 
   async getUnSettlementList(): Promise<UnSettledTransactionList> {
     const unSettlementList = await this.transactionRepository.findAllUnSettledTransactions();

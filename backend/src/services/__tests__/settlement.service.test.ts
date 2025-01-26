@@ -1,12 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ITransactionRepository } from '../../repositories/transaction.repository';
-import type { IUserRepository } from '../../repositories/user.repository';
 import { SettlementService } from '../settlement.service';
 
 describe('SettlementService', () => {
   // モックリポジトリの作成
   const transactionRepository: ITransactionRepository = {
-    findUnSettledTransactions: vi.fn(),
     findAllUnSettledTransactions: vi.fn(),
     create: vi.fn(),
     findById: vi.fn(),
@@ -17,13 +15,7 @@ describe('SettlementService', () => {
     updateShare: vi.fn(),
   };
 
-  const userRepository: IUserRepository = {
-    create: vi.fn(),
-    findByEmail: vi.fn(),
-    findById: vi.fn(),
-  };
-
-  const settlementService = new SettlementService(transactionRepository, userRepository);
+  const settlementService = new SettlementService(transactionRepository);
 
   // 各テスト前にモックをリセット
   beforeEach(() => {
@@ -47,6 +39,8 @@ describe('SettlementService', () => {
           amount: 1000,
           firstShare: 500,
           secondShare: 500,
+          firstShareRatio: 50,
+          secondShareRatio: 50,
           transactionDate: new Date('2024-01-01'),
         },
         {
@@ -56,6 +50,8 @@ describe('SettlementService', () => {
           amount: 600,
           firstShare: 300,
           secondShare: 300,
+          firstShareRatio: 50,
+          secondShareRatio: 50,
           transactionDate: new Date('2024-01-02'),
         },
       ];
@@ -80,6 +76,8 @@ describe('SettlementService', () => {
           amount: 1000,
           firstShare: 500,
           secondShare: 500,
+          firstShareRatio: 50,
+          secondShareRatio: 50,
           transactionDate: newDate,
         },
         {
@@ -89,6 +87,8 @@ describe('SettlementService', () => {
           amount: 600,
           firstShare: 300,
           secondShare: 300,
+          firstShareRatio: 50,
+          secondShareRatio: 50,
           transactionDate: oldDate,
         },
       ];

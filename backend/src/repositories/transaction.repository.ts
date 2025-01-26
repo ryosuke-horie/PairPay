@@ -22,6 +22,8 @@ export interface UnSettledTransactionResponse {
   amount: number;
   firstShare: number;
   secondShare: number;
+  firstShareRatio: number;
+  secondShareRatio: number;
   transactionDate: Date;
 }
 
@@ -47,10 +49,10 @@ export interface ITransactionRepository {
   findByPayerId(payerId: number): Promise<TransactionResponse[]>;
   findAll(): Promise<TransactionResponse[]>;
   delete(id: number): Promise<void>;
-  findUnSettledTransactions(
-    userId: number,
-    partnerId: number
-  ): Promise<UnSettledTransactionResponse[]>;
+  //   findUnSettledTransactions(
+  //     userId: number,
+  //     partnerId: number
+  //   ): Promise<UnSettledTransactionResponse[]>;
   findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]>;
   settleTransaction(settlementId: number): Promise<void>;
   updateShare(settlementId: number, shareRatio: number, shareAmount: number): Promise<void>;
@@ -134,49 +136,51 @@ export class TransactionRepository implements ITransactionRepository {
       .execute();
   }
 
-  async findUnSettledTransactions(
-    userId: number,
-    partnerId: number
-  ): Promise<UnSettledTransactionResponse[]> {
-    const result = await this.db
-      .select({
-        id: transactions.id,
-        payerId: transactions.payerId,
-        title: transactions.title,
-        amount: transactions.amount,
-        transactionDate: transactions.transactionDate,
-        firstShare: sharedExpenses.shareAmount,
-        secondShare: sql<number>`(
-          SELECT share_amount
-          FROM ${sharedExpenses}
-          WHERE transaction_id = ${transactions.id}
-          AND user_id = ${partnerId}
-          AND is_settled = 0
-          LIMIT 1
-        )`.as('second_share'),
-      })
-      .from(transactions)
-      .innerJoin(
-        sharedExpenses,
-        and(
-          eq(sharedExpenses.transactionId, transactions.id),
-          eq(sharedExpenses.userId, userId),
-          eq(sharedExpenses.isSettled, false)
-        )
-      )
-      .where(inArray(transactions.payerId, [userId, partnerId]))
-      .orderBy(desc(transactions.transactionDate));
+  //   async findUnSettledTransactions(
+  //     userId: number,
+  //     partnerId: number
+  //   ): Promise<UnSettledTransactionResponse[]> {
+  //     const result = await this.db
+  //       .select({
+  //         id: transactions.id,
+  //         payerId: transactions.payerId,
+  //         title: transactions.title,
+  //         amount: transactions.amount,
+  //         transactionDate: transactions.transactionDate,
+  //         firstShare: sharedExpenses.shareAmount,
+  //         secondShare: sql<number>`(
+  //           SELECT share_amount
+  //           FROM ${sharedExpenses}
+  //           WHERE transaction_id = ${transactions.id}
+  //           AND user_id = ${partnerId}
+  //           AND is_settled = 0
+  //           LIMIT 1
+  //         )`.as('second_share'),
+  //       })
+  //       .from(transactions)
+  //       .innerJoin(
+  //         sharedExpenses,
+  //         and(
+  //           eq(sharedExpenses.transactionId, transactions.id),
+  //           eq(sharedExpenses.userId, userId),
+  //           eq(sharedExpenses.isSettled, false)
+  //         )
+  //       )
+  //       .where(inArray(transactions.payerId, [userId, partnerId]))
+  //       .orderBy(desc(transactions.transactionDate));
 
-    return result.map((row) => ({
-      id: row.id,
-      payerId: row.payerId,
-      title: row.title,
-      amount: row.amount,
-      firstShare: row.firstShare,
-      secondShare: row.secondShare ?? 0,
-      transactionDate: row.transactionDate,
-    }));
-  }
+  //     return result.map((row) => ({
+  //       id: row.id,
+  //       payerId: row.payerId,
+  //       title: row.title,
+  //       amount: row.amount,
+  //       firstShare: row.firstShare,
+  //       secondShare: row.secondShare ?? 0,
+  //       firstShareRatio: 50,
+  //       secondShareRatio: 50,
+  //       transactionDate: row.transactionDate,
+  //     }));
+  //   }
 
   // ユーザーIDに依存しない形で全ての未精算取引を取得
   async findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]> {
@@ -188,6 +192,7 @@ export class TransactionRepository implements ITransactionRepository {
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         firstShare: sharedExpenses.shareAmount,
+        firstShareRatio: sharedExpenses.shareRatio,
         secondShare: sql<number>`(
           SELECT share_amount
           FROM ${sharedExpenses} se2
@@ -196,6 +201,14 @@ export class TransactionRepository implements ITransactionRepository {
           AND se2.is_settled = 0
           LIMIT 1
         )`.as('second_share'),
+        secondShareRatio: sql<number>`(
+          SELECT share_ratio
+          FROM ${sharedExpenses} se2
+          WHERE se2.transaction_id = ${transactions.id}
+          AND se2.user_id != ${sharedExpenses.userId}
+          AND se2.is_settled = 0
+          LIMIT 1
+        )`.as('second_share_ratio'),
       })
       .from(transactions)
       .innerJoin(
@@ -212,6 +225,8 @@ export class TransactionRepository implements ITransactionRepository {
       amount: row.amount,
       firstShare: row.firstShare,
       secondShare: row.secondShare ?? 0,
+      firstShareRatio: row.firstShareRatio ?? 50,
+      secondShareRatio: row.secondShareRatio ?? 50,
       transactionDate: row.transactionDate,
     }));
   }

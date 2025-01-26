@@ -56,7 +56,7 @@ export default function SettlementsPage() {
   const handleUpdateShare = async (id: number, shareRatio: number) => {
     try {
       const settlement = settlements?.transactions.find(t => t.id === id);
-      const shareAmount = settlement ? Math.round(settlement.amount * (shareRatio / 100)) : 0;
+      const shareAmount = settlement ? Math.round(settlement.amount * shareRatio) : 0;
       
       await updateShareMutation.mutateAsync({
         settlementId: id,
@@ -77,7 +77,7 @@ export default function SettlementsPage() {
 
   return (
     <div className="container max-w-screen-md py-6">
-      <h1 className="mb-6 text-2xl font-bold">未精算一覧</h1>
+      <h1 className="mb-6 text-2xl font-bold">未精算管理</h1>
       <UnSettlementList 
         settlements={settlements?.transactions ?? []} 
         onUpdateShare={handleUpdateShare}
