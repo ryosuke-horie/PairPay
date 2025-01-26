@@ -2,7 +2,7 @@ CREATE TABLE `shared_expenses` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`transaction_id` integer NOT NULL,
 	`user_id` integer NOT NULL,
-	`share_ratio` real DEFAULT 0.5 NOT NULL,
+	`share_ratio` real DEFAULT 50 NOT NULL,
 	`share_amount` real NOT NULL,
 	`is_settled` integer DEFAULT false NOT NULL,
 	`settled_at` integer,
