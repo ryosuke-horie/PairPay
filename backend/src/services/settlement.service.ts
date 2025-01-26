@@ -21,10 +21,7 @@ export interface ISettlementService {
 }
 
 export class SettlementService implements ISettlementService {
-  constructor(
-    private transactionRepository: ITransactionRepository,
-    private userRepository: IUserRepository
-  ) {}
+  constructor(private transactionRepository: ITransactionRepository) {}
 
   async getUnSettlementList(): Promise<UnSettledTransactionList> {
     const unSettlementList = await this.transactionRepository.findAllUnSettledTransactions();

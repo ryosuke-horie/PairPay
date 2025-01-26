@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { ITransactionRepository } from '../../repositories/transaction.repository';
-import type { IUserRepository } from '../../repositories/user.repository';
 import { SettlementService } from '../settlement.service';
 
 describe('SettlementService', () => {
@@ -17,13 +16,7 @@ describe('SettlementService', () => {
     updateShare: vi.fn(),
   };
 
-  const userRepository: IUserRepository = {
-    create: vi.fn(),
-    findByEmail: vi.fn(),
-    findById: vi.fn(),
-  };
-
-  const settlementService = new SettlementService(transactionRepository, userRepository);
+  const settlementService = new SettlementService(transactionRepository);
 
   // 各テスト前にモックをリセット
   beforeEach(() => {

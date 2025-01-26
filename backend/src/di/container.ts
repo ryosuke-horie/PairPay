@@ -25,7 +25,7 @@ export function createContainer(env: Bindings): Container {
   // サービスの初期化
   const authService = new AuthService(userRepository, env.JWT_SECRET);
   const transactionService = new TransactionService(transactionRepository, userRepository);
-  const settlementService = new SettlementService(transactionRepository, userRepository);
+  const settlementService = new SettlementService(transactionRepository);
 
   return {
     userRepository,
