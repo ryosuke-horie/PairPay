@@ -15,6 +15,7 @@ interface UnSettlementCardProps {
   payerId: number;
   firstShare: number;
   secondShare: number;
+  onUpdateShare: (id: number, shareRatio: number) => Promise<void>;
 }
 
 export const UnSettlementCard = (props: UnSettlementCardProps) => {
@@ -78,6 +79,9 @@ export const UnSettlementCard = (props: UnSettlementCardProps) => {
         title={props.title}
         currentShareRatio={0.5}
         totalAmount={props.amount}
+        onSubmit={async (shareRatio) => {
+          await props.onUpdateShare(props.id, shareRatio);
+        }}
       />
     </>
   );

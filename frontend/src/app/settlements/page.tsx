@@ -5,10 +5,14 @@ import { api } from "@/trpc/client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { UnSettlementList } from "@/components/settlement/un-settlement-list";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettlementsPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+  const utils = api.useUtils();
+  const updateShareMutation = api.settlement.updateShare.useMutation();
 
   // tRPCのクエリ
   const { data: settlements, isLoading: isSettlementsLoading, error } = 
@@ -49,10 +53,35 @@ export default function SettlementsPage() {
     );
   }
 
+  const handleUpdateShare = async (id: number, shareRatio: number) => {
+    try {
+      const settlement = settlements?.transactions.find(t => t.id === id);
+      const shareAmount = settlement ? Math.round(settlement.amount * (shareRatio / 100)) : 0;
+      
+      await updateShareMutation.mutateAsync({
+        settlementId: id,
+        shareRatio,
+        shareAmount,
+      });
+      toast({
+        description: '負担割合を更新しました',
+      });
+      await utils.settlement.getUnSettlementList.invalidate();
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        description: '更新中にエラーが発生しました。再度お試しください',
+      });
+    }
+  };
+
   return (
     <div className="container max-w-screen-md py-6">
       <h1 className="mb-6 text-2xl font-bold">未精算一覧</h1>
-      <UnSettlementList settlements={settlements?.transactions ?? []} />
+      <UnSettlementList 
+        settlements={settlements?.transactions ?? []} 
+        onUpdateShare={handleUpdateShare}
+      />
     </div>
   );
 }

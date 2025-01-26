@@ -4,15 +4,17 @@ import { UnSettlementCard } from "./un-settlement-card";
 interface UnSettlementListProps {
   settlements: {
     id: number;
+    title: string;
     amount: number;
     transactionDate: string;
     payerId: number;
     firstShare: number;
     secondShare: number;
   }[];
+  onUpdateShare: (id: number, shareRatio: number) => Promise<void>;
 }
 
-export const UnSettlementList = ({ settlements }: UnSettlementListProps) => {
+export const UnSettlementList = ({ settlements, onUpdateShare }: UnSettlementListProps) => {
   if (!settlements?.length) {
     return (
       <div className="rounded-lg border border-muted p-4">
@@ -29,6 +31,7 @@ export const UnSettlementList = ({ settlements }: UnSettlementListProps) => {
         <UnSettlementCard
           key={settlement.id}
           {...settlement}
+          onUpdateShare={onUpdateShare}
         />
       ))}
     </div>

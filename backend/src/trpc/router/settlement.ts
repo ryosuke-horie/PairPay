@@ -34,13 +34,13 @@ export const settlementRouter = router({
       }
     }),
 
-    // 負担割合・負担金額の更新
+  // 負担割合・負担金額の更新
   updateShare: protectedProcedure
     .input(
       z.object({
         settlementId: z.number(),
         shareRatio: z.number().min(0).max(100),
-        shareAmount: z.number().min(0)
+        shareAmount: z.number().min(0),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -58,5 +58,5 @@ export const settlementRouter = router({
         }
         throw error;
       }
-    })
+    }),
 });

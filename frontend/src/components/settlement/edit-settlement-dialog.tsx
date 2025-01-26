@@ -36,6 +36,7 @@ interface EditSettlementDialogProps {
   title: string;
   currentShareRatio: number;
   totalAmount: number;
+  onSubmit: (shareRatio: number) => Promise<void>;
 }
 
 export function EditSettlementDialog({
@@ -44,6 +45,7 @@ export function EditSettlementDialog({
   title,
   currentShareRatio,
   totalAmount,
+  onSubmit,
 }: EditSettlementDialogProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -80,10 +82,14 @@ export function EditSettlementDialog({
     }
   }, [watchShareAmount, totalAmount]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // TODO: API呼び出しを実装
-    console.log(values);
-    onOpenChange(false);
+  const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      // 100で割って0-1の値に変換
+      await onSubmit(values.shareRatio / 100);
+      onOpenChange(false);
+    } catch (error) {
+      // エラーハンドリングは親コンポーネントで行う
+    }
   };
 
   return (
@@ -93,7 +99,7 @@ export function EditSettlementDialog({
           <DialogTitle>{title}の負担を編集</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="shareRatio"
