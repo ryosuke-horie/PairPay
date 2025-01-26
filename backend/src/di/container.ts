@@ -5,6 +5,7 @@ import {
 } from '../repositories/transaction.repository';
 import { type IUserRepository, UserRepository } from '../repositories/user.repository';
 import { AuthService, type IAuthService } from '../services/auth.service';
+import { type ISettlementService, SettlementService } from '../services/settlement.service';
 import { type ITransactionService, TransactionService } from '../services/transaction.service';
 import type { Bindings, Variables } from '../types';
 
@@ -13,6 +14,7 @@ export interface Container {
   authService: IAuthService;
   transactionRepository: ITransactionRepository;
   transactionService: ITransactionService;
+  settlementService: ISettlementService;
 }
 
 export function createContainer(env: Bindings): Container {
@@ -23,12 +25,14 @@ export function createContainer(env: Bindings): Container {
   // サービスの初期化
   const authService = new AuthService(userRepository, env.JWT_SECRET);
   const transactionService = new TransactionService(transactionRepository, userRepository);
+  const settlementService = new SettlementService(transactionRepository, userRepository);
 
   return {
     userRepository,
     authService,
     transactionRepository,
     transactionService,
+    settlementService,
   };
 }
 

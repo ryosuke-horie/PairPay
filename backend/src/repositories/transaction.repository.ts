@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { sharedExpenses, transactions } from '../../drizzle/schema.js';
 
@@ -6,6 +6,15 @@ export interface TransactionCreateInput {
   payerId: number;
   title: string;
   amount: number;
+  transactionDate: Date;
+}
+
+export interface UnSettledTransactionResponse {
+  id: number;
+  payerId: number;
+  amount: number;
+  userShare: number;
+  partnerShare: number;
   transactionDate: Date;
 }
 
@@ -25,6 +34,10 @@ export interface ITransactionRepository {
   findByPayerId(payerId: number): Promise<TransactionResponse[]>;
   findAll(): Promise<TransactionResponse[]>;
   delete(id: number): Promise<void>;
+  findUnSettledTransactions(
+    userId: number,
+    partnerId: number
+  ): Promise<UnSettledTransactionResponse[]>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -91,6 +104,48 @@ export class TransactionRepository implements ITransactionRepository {
       })
       .from(transactions)
       .execute();
+  }
+
+  async findUnSettledTransactions(
+    userId: number,
+    partnerId: number
+  ): Promise<UnSettledTransactionResponse[]> {
+    const result = await this.db
+      .select({
+        id: transactions.id,
+        payerId: transactions.payerId,
+        amount: transactions.amount,
+        transactionDate: transactions.transactionDate,
+        userShare: sharedExpenses.shareAmount,
+        partnerShare: sql<number>`(
+          SELECT share_amount
+          FROM ${sharedExpenses}
+          WHERE transaction_id = ${transactions.id}
+          AND user_id = ${partnerId}
+          AND is_settled = 0
+          LIMIT 1
+        )`.as('partner_share'),
+      })
+      .from(transactions)
+      .innerJoin(
+        sharedExpenses,
+        and(
+          eq(sharedExpenses.transactionId, transactions.id),
+          eq(sharedExpenses.userId, userId),
+          eq(sharedExpenses.isSettled, false)
+        )
+      )
+      .where(inArray(transactions.payerId, [userId, partnerId]))
+      .orderBy(desc(transactions.transactionDate));
+
+    return result.map((row) => ({
+      id: row.id,
+      payerId: row.payerId,
+      amount: row.amount,
+      userShare: row.userShare,
+      partnerShare: row.partnerShare ?? 0,
+      transactionDate: row.transactionDate,
+    }));
   }
 
   async delete(id: number): Promise<void> {
