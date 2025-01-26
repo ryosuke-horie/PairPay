@@ -1,7 +1,7 @@
 import { router } from '../trpc';
 import { authRouter } from './auth.js';
-import { transactionRouter } from './transaction.js';
 import { balanceRouter } from './balance.js';
+import { transactionRouter } from './transaction.js';
 
 export const appRouter = router({
   auth: authRouter,

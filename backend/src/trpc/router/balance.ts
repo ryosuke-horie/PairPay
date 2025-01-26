@@ -5,7 +5,7 @@ export const balanceRouter = router({
   getBalance: protectedProcedure
     .input(
       z.object({
-        partnerId: z.string().refine((value) => !isNaN(parseInt(value)), {
+        partnerId: z.string().refine((value) => !Number.isNaN(Number.parseInt(value)), {
           message: 'Partner ID must be a valid number',
         }),
       })
@@ -14,8 +14,8 @@ export const balanceRouter = router({
       const container = ctx.hono.get('container');
       try {
         return await container.balanceService.getBalance(
-          parseInt(ctx.user.id),
-          parseInt(input.partnerId)
+          Number.parseInt(ctx.user.id),
+          Number.parseInt(input.partnerId)
         );
       } catch (error) {
         // エラーハンドリング

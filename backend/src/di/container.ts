@@ -5,8 +5,8 @@ import {
 } from '../repositories/transaction.repository';
 import { type IUserRepository, UserRepository } from '../repositories/user.repository';
 import { AuthService, type IAuthService } from '../services/auth.service';
+import { BalanceService, type IBalanceService } from '../services/balance.service';
 import { type ITransactionService, TransactionService } from '../services/transaction.service';
-import { type IBalanceService, BalanceService } from '../services/balance.service';
 import type { Bindings, Variables } from '../types';
 
 export interface Container {

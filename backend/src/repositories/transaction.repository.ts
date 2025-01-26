@@ -1,4 +1,4 @@
-import { and, eq, inArray, desc, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
 import { sharedExpenses, transactions } from '../../drizzle/schema.js';
 
@@ -34,7 +34,10 @@ export interface ITransactionRepository {
   findByPayerId(payerId: number): Promise<TransactionResponse[]>;
   findAll(): Promise<TransactionResponse[]>;
   delete(id: number): Promise<void>;
-  findUnSettledTransactions(userId: number, partnerId: number): Promise<UnSettledTransactionResponse[]>;
+  findUnSettledTransactions(
+    userId: number,
+    partnerId: number
+  ): Promise<UnSettledTransactionResponse[]>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -132,12 +135,10 @@ export class TransactionRepository implements ITransactionRepository {
           eq(sharedExpenses.isSettled, false)
         )
       )
-      .where(
-        inArray(transactions.payerId, [userId, partnerId])
-      )
+      .where(inArray(transactions.payerId, [userId, partnerId]))
       .orderBy(desc(transactions.transactionDate));
 
-    return result.map(row => ({
+    return result.map((row) => ({
       id: row.id,
       payerId: row.payerId,
       amount: row.amount,
