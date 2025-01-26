@@ -49,13 +49,25 @@ export class TransactionRepository implements ITransactionRepository {
   }
 
   async create(data: TransactionCreateInput): Promise<void> {
-    await this.db
+    const result = await this.db
       .insert(transactions)
       .values({
         payerId: data.payerId,
         title: data.title,
         amount: data.amount,
         transactionDate: data.transactionDate,
+      })
+      .returning({ id: transactions.id })
+      .execute();
+
+    // 精算用のレコードを同時に作成
+    await this.db
+      .insert(sharedExpenses)
+      .values({
+        transactionId: result[0].id,
+        userId: data.payerId,
+        shareAmount: data.amount / 2,
+        isSettled: false,
       })
       .execute();
   }

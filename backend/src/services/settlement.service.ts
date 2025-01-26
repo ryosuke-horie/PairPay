@@ -24,7 +24,6 @@ export class SettlementService implements ISettlementService {
   ) {}
 
   async getUnSettlementList(): Promise<UnSettledTransactionList> {
-    // 未精算取引の取得
     const unSettlementList = await this.transactionRepository.findAllUnSettledTransactions();
     return { transactions: unSettlementList };
   }

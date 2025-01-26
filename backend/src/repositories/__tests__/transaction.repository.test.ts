@@ -30,6 +30,7 @@ const mockDrizzleInstance = {
   execute: vi.fn().mockImplementation(() => []),
   innerJoin: vi.fn(),
   orderBy: vi.fn(),
+  returning: vi.fn(),
   $client: {} as D1Database,
 };
 
@@ -42,6 +43,7 @@ mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.innerJoin.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.orderBy.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
 
 vi.mock('drizzle-orm/d1', () => ({
   drizzle: vi.fn(() => mockDrizzleInstance as unknown as DrizzleD1Database),
@@ -151,6 +153,10 @@ describe('TransactionRepository', () => {
 
   describe('create', () => {
     it('取引を正常に作成できること', async () => {
+      // returning の結果をモック
+      mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
+      mockDrizzleInstance.execute.mockResolvedValueOnce([{ id: 1 }]);
+
       const input = {
         payerId: 1,
         title: 'スーパーでの買い物',
@@ -160,25 +166,35 @@ describe('TransactionRepository', () => {
 
       await repository.create(input);
 
-      expect(mockDrizzleInstance.insert).toHaveBeenCalled();
-      expect(mockDrizzleInstance.values).toHaveBeenCalledWith({
+      // transactions テーブルへの挿入を確認
+      expect(mockDrizzleInstance.insert).toHaveBeenNthCalledWith(1, transactions);
+      expect(mockDrizzleInstance.values).toHaveBeenNthCalledWith(1, {
         payerId: input.payerId,
         title: input.title,
         amount: input.amount,
         transactionDate: input.transactionDate,
       });
-      expect(mockDrizzleInstance.execute).toHaveBeenCalled();
+
+      // sharedExpenses テーブルへの挿入を確認
+      expect(mockDrizzleInstance.insert).toHaveBeenNthCalledWith(2, sharedExpenses);
+      expect(mockDrizzleInstance.values).toHaveBeenNthCalledWith(2, {
+        transactionId: 1,
+        userId: input.payerId,
+        shareAmount: input.amount / 2,
+        isSettled: false,
+      });
     });
 
     it('作成に失敗した場合エラーをスローすること', async () => {
+      mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
+      mockDrizzleInstance.execute.mockRejectedValueOnce(new Error('Database error'));
+
       const input = {
         payerId: 1,
         title: 'スーパーでの買い物',
         amount: 1000,
         transactionDate: new Date('2024-01-24'),
       };
-
-      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(repository.create(input)).rejects.toThrow('Database error');
     });

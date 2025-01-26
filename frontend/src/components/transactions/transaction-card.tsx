@@ -33,6 +33,8 @@ export const TransactionCard = ({
         });
         // トランザクション一覧を更新
         await utils.transaction.list.invalidate();
+        // 未精算一覧も更新する
+        await utils.settlement.getUnSettlementList.invalidate();
       } catch (error) {
         toast({
           variant: 'destructive',
