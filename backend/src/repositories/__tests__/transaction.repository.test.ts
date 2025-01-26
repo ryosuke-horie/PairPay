@@ -261,6 +261,7 @@ describe('TransactionRepository', () => {
         {
           id: 1,
           payerId: 1,
+          title: 'スーパーでの買い物',
           amount: 1000,
           transactionDate: new Date('2024-01-01'),
           firstShare: 500,
@@ -285,6 +286,7 @@ describe('TransactionRepository', () => {
       expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         firstShare: sharedExpenses.shareAmount,
@@ -314,6 +316,7 @@ describe('TransactionRepository', () => {
         {
           id: 1,
           payerId: 1,
+          title: 'テスト取引',
           amount: 1000,
           transactionDate: new Date('2024-01-01'),
           firstShare: 500,

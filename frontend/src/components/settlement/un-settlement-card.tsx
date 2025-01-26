@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface UnSettlementCardProps {
   id: number;
+  title: string;
   amount: number;
   transactionDate: string;
   payerId: number;
@@ -43,9 +44,7 @@ export const UnSettlementCard = (props: UnSettlementCardProps) => {
       <CardHeader className="p-3 sm:p-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">
-              ユーザー{props.payerId}から支払い
-            </p>
+            <p className="text-base font-semibold sm:text-sm">{props.title}</p>
           </div>
           <div className="flex items-start gap-3 sm:gap-4">
             <div className="text-right">

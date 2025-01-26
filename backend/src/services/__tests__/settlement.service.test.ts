@@ -41,6 +41,7 @@ describe('SettlementService', () => {
         {
           id: 1,
           payerId: 1,
+          title: 'スーパーでの買い物',
           amount: 1000,
           firstShare: 500,
           secondShare: 500,
@@ -49,6 +50,7 @@ describe('SettlementService', () => {
         {
           id: 2,
           payerId: 2,
+          title: '交通費',
           amount: 600,
           firstShare: 300,
           secondShare: 300,
@@ -72,6 +74,7 @@ describe('SettlementService', () => {
         {
           id: 1,
           payerId: 1,
+          title: 'スーパーでの買い物',
           amount: 1000,
           firstShare: 500,
           secondShare: 500,
@@ -80,6 +83,7 @@ describe('SettlementService', () => {
         {
           id: 2,
           payerId: 2,
+          title: '交通費',
           amount: 600,
           firstShare: 300,
           secondShare: 300,

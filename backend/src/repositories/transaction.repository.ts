@@ -12,6 +12,7 @@ export interface TransactionCreateInput {
 export interface UnSettledTransactionResponse {
   id: number;
   payerId: number;
+  title: string;
   amount: number;
   firstShare: number;
   secondShare: number;
@@ -127,6 +128,7 @@ export class TransactionRepository implements ITransactionRepository {
       .select({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         firstShare: sharedExpenses.shareAmount,
@@ -154,6 +156,7 @@ export class TransactionRepository implements ITransactionRepository {
     return result.map((row) => ({
       id: row.id,
       payerId: row.payerId,
+      title: row.title,
       amount: row.amount,
       firstShare: row.firstShare,
       secondShare: row.secondShare ?? 0,
@@ -167,6 +170,7 @@ export class TransactionRepository implements ITransactionRepository {
       .select({
         id: transactions.id,
         payerId: transactions.payerId,
+        title: transactions.title,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         firstShare: sharedExpenses.shareAmount,
@@ -190,6 +194,7 @@ export class TransactionRepository implements ITransactionRepository {
     return result.map((row) => ({
       id: row.id,
       payerId: row.payerId,
+      title: row.title,
       amount: row.amount,
       firstShare: row.firstShare,
       secondShare: row.secondShare ?? 0,

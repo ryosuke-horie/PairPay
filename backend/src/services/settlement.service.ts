@@ -6,6 +6,7 @@ export interface UnSettledTransactionList {
   transactions: {
     id: number;
     payerId: number;
+    title: string;
     amount: number;
     firstShare: number;
     secondShare: number;
