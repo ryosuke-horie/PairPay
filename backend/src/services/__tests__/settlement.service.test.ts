@@ -13,6 +13,7 @@ describe('SettlementService', () => {
     findByPayerId: vi.fn(),
     findAll: vi.fn(),
     delete: vi.fn(),
+    settleTransaction: vi.fn(),
   };
 
   const userRepository: IUserRepository = {
@@ -98,6 +99,27 @@ describe('SettlementService', () => {
       const result = await settlementService.getUnSettlementList();
       expect(result.transactions[0].transactionDate).toEqual(newDate);
       expect(result.transactions[1].transactionDate).toEqual(oldDate);
+    });
+  });
+
+  // settle メソッドのテストケースを追加
+  describe('settle', () => {
+    test('正常に精算処理が完了する', async () => {
+      const settlementId = 1;
+      vi.mocked(transactionRepository.settleTransaction).mockResolvedValue();
+
+      await settlementService.settle(settlementId);
+
+      expect(transactionRepository.settleTransaction).toHaveBeenCalledWith(settlementId);
+      expect(transactionRepository.settleTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    test('精算処理でエラーが発生した場合、エラーがスローされる', async () => {
+      const settlementId = 1;
+      const error = new Error('精算処理に失敗しました');
+      vi.mocked(transactionRepository.settleTransaction).mockRejectedValue(error);
+
+      await expect(settlementService.settle(settlementId)).rejects.toThrow(error);
     });
   });
 });

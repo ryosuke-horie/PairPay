@@ -40,6 +40,7 @@ export interface ITransactionRepository {
     partnerId: number
   ): Promise<UnSettledTransactionResponse[]>;
   findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]>;
+  settleTransaction(settlementId: number): Promise<void>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -208,5 +209,13 @@ export class TransactionRepository implements ITransactionRepository {
 
     // 次に取引レコードを削除
     await this.db.delete(transactions).where(eq(transactions.id, id)).execute();
+  }
+
+  async settleTransaction(settlementId: number): Promise<void> {
+    await this.db
+      .update(sharedExpenses)
+      .set({ isSettled: true })
+      .where(eq(sharedExpenses.transactionId, settlementId))
+      .execute();
   }
 }
