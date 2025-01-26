@@ -7,6 +7,7 @@ describe('SettlementService', () => {
   // モックリポジトリの作成
   const transactionRepository: ITransactionRepository = {
     findUnSettledTransactions: vi.fn(),
+    findAllUnSettledTransactions: vi.fn(),
     create: vi.fn(),
     findById: vi.fn(),
     findByPayerId: vi.fn(),
@@ -27,106 +28,76 @@ describe('SettlementService', () => {
     vi.resetAllMocks();
   });
 
-  describe('getSettlementStatus', () => {
-    test('正常系: 未精算取引がない場合は0を返す', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById)
-        .mockResolvedValueOnce({ id: 1, name: 'User 1', email: 'user1@example.com' })
-        .mockResolvedValueOnce({ id: 2, name: 'User 2', email: 'user2@example.com' });
-      vi.mocked(transactionRepository.findUnSettledTransactions).mockResolvedValue([]);
+  describe('getUnSettlementList', () => {
+    test('未精算取引がない場合は空の配列を返す', async () => {
+      vi.mocked(transactionRepository.findAllUnSettledTransactions).mockResolvedValue([]);
 
-      const status = await settlementService.getSettlementStatus(1, 2);
-      expect(status).toEqual({ amount: 0 });
+      const result = await settlementService.getUnSettlementList();
+      expect(result).toEqual({ transactions: [] });
     });
 
-    test('正常系: 自分が支払った取引の場合', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById)
-        .mockResolvedValueOnce({ id: 1, name: 'User 1', email: 'user1@example.com' })
-        .mockResolvedValueOnce({ id: 2, name: 'User 2', email: 'user2@example.com' });
-      vi.mocked(transactionRepository.findUnSettledTransactions).mockResolvedValue([
-        {
-          id: 1,
-          payerId: 1, // 自分が支払い
-          amount: 1000,
-          userShare: 500,
-          partnerShare: 500,
-          transactionDate: new Date(),
-        },
-      ]);
-
-      const status = await settlementService.getSettlementStatus(1, 2);
-      expect(status).toEqual({ amount: 500 }); // 相手の負担額を受け取る
-    });
-
-    test('正常系: 相手が支払った取引の場合', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById)
-        .mockResolvedValueOnce({ id: 1, name: 'User 1', email: 'user1@example.com' })
-        .mockResolvedValueOnce({ id: 2, name: 'User 2', email: 'user2@example.com' });
-      vi.mocked(transactionRepository.findUnSettledTransactions).mockResolvedValue([
-        {
-          id: 1,
-          payerId: 2, // 相手が支払い
-          amount: 1000,
-          userShare: 500,
-          partnerShare: 500,
-          transactionDate: new Date(),
-        },
-      ]);
-
-      const status = await settlementService.getSettlementStatus(1, 2);
-      expect(status).toEqual({ amount: -500 }); // 自分の負担額を支払う
-    });
-
-    test('正常系: 複数の取引がある場合', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById)
-        .mockResolvedValueOnce({ id: 1, name: 'User 1', email: 'user1@example.com' })
-        .mockResolvedValueOnce({ id: 2, name: 'User 2', email: 'user2@example.com' });
-      vi.mocked(transactionRepository.findUnSettledTransactions).mockResolvedValue([
+    test('未精算取引がある場合、全ての取引を返す', async () => {
+      const mockTransactions = [
         {
           id: 1,
           payerId: 1,
+          title: 'スーパーでの買い物',
           amount: 1000,
-          userShare: 500,
-          partnerShare: 500,
-          transactionDate: new Date(),
+          firstShare: 500,
+          secondShare: 500,
+          transactionDate: new Date('2024-01-01'),
         },
         {
           id: 2,
           payerId: 2,
+          title: '交通費',
           amount: 600,
-          userShare: 300,
-          partnerShare: 300,
-          transactionDate: new Date(),
+          firstShare: 300,
+          secondShare: 300,
+          transactionDate: new Date('2024-01-02'),
         },
-      ]);
+      ];
 
-      const status = await settlementService.getSettlementStatus(1, 2);
-      expect(status).toEqual({ amount: 200 }); // 500 - 300
-    });
-
-    test('異常系: ユーザーが存在しない場合', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById)
-        .mockResolvedValueOnce(undefined)
-        .mockResolvedValueOnce({ id: 2, name: 'User 2', email: 'user2@example.com' });
-
-      await expect(settlementService.getSettlementStatus(1, 2)).rejects.toThrow('User not found');
-    });
-
-    test('異常系: 自分自身との精算を試みた場合', async () => {
-      // モックの設定
-      vi.mocked(userRepository.findById).mockResolvedValue({
-        id: 1,
-        name: 'User 1',
-        email: 'user1@example.com',
-      });
-
-      await expect(settlementService.getSettlementStatus(1, 1)).rejects.toThrow(
-        'Cannot calculate settlement with yourself'
+      vi.mocked(transactionRepository.findAllUnSettledTransactions).mockResolvedValue(
+        mockTransactions
       );
+
+      const result = await settlementService.getUnSettlementList();
+      expect(result).toEqual({ transactions: mockTransactions });
+    });
+
+    test('取引日の降順でソートされていることを確認', async () => {
+      const oldDate = new Date('2024-01-01');
+      const newDate = new Date('2024-01-02');
+
+      const mockTransactions = [
+        {
+          id: 1,
+          payerId: 1,
+          title: 'スーパーでの買い物',
+          amount: 1000,
+          firstShare: 500,
+          secondShare: 500,
+          transactionDate: newDate,
+        },
+        {
+          id: 2,
+          payerId: 2,
+          title: '交通費',
+          amount: 600,
+          firstShare: 300,
+          secondShare: 300,
+          transactionDate: oldDate,
+        },
+      ];
+
+      vi.mocked(transactionRepository.findAllUnSettledTransactions).mockResolvedValue(
+        mockTransactions
+      );
+
+      const result = await settlementService.getUnSettlementList();
+      expect(result.transactions[0].transactionDate).toEqual(newDate);
+      expect(result.transactions[1].transactionDate).toEqual(oldDate);
     });
   });
 });

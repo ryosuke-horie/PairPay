@@ -30,13 +30,14 @@ import { ja } from "date-fns/locale";
 import { api } from "@/trpc/client";
 import { useToast } from "@/hooks/use-toast";
 import type { TRPCClientErrorLike } from "@trpc/client";
-import type { AppRouter } from "@/trpc/client";
 import { useState } from "react";
 import type { z } from "zod";
+import { useAuth } from "@/hooks/use-auth";
 
 type FormValues = z.infer<typeof transactionFormSchema>;
 
 export function CreateTransactionDialog() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const utils = api.useContext();
   const [isOpen, setIsOpen] = useState(false);
@@ -46,11 +47,13 @@ export function CreateTransactionDialog() {
     onSuccess: () => {
       // 取引一覧を再取得
       utils.transaction.list.invalidate();
+      // 未精算一覧も再取得
+      utils.settlement.getUnSettlementList.invalidate();
       toast({
         title: "取引を登録しました",
       });
       form.reset();
-      setIsOpen(false);  // ダイアログを閉じる
+      setIsOpen(false);
     },
     onError: (error: TRPCClientErrorLike<any>) => {
       toast({

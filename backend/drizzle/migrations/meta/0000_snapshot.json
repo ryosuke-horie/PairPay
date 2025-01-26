@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1a72dce7-2a1c-4aec-9d54-3bf228b72748",
+  "id": "76cb2d86-b6b5-44ad-b15b-dc4cddefaa0b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "shared_expenses": {
@@ -27,6 +27,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "share_ratio": {
+          "name": "share_ratio",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0.5
         },
         "share_amount": {
           "name": "share_amount",
@@ -130,6 +138,14 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'shared'"
         },
         "transaction_date": {
           "name": "transaction_date",

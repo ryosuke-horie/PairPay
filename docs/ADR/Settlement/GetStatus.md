@@ -3,7 +3,7 @@
 ## 1. 概要
 
 2名のユーザー間における現在の貸し借り残高を取得するためのAPI設計書です。
-ユーザー間の未精算取引を集計し、最終的な貸し借り状態を提供します。
+未精算の取引から、各ユーザーの支払額と負担額を集計し、最終的な貸し借り状態を算出します。
 
 ## 2. コンポーネント構成
 
@@ -13,16 +13,40 @@
 graph TD
     A[tRPC Router] --> B[SettlementService]
     B --> C[TransactionRepository]
-    B --> D[UserRepository]
     C --> E[D1 Database]
-    D --> E
 ```
+
+### 2.2 データ取得ロジック
+
+1. 未精算取引の抽出
+
+```sql
+SELECT 
+  t.id,
+  t.amount,
+  t.payer_id,
+  se.share_amount,
+  se.user_id
+FROM transactions t
+JOIN shared_expenses se ON t.id = se.transaction_id
+WHERE se.is_settled = 0
+```
+
+2. 残高計算ロジック
+
+- 自分が支払った金額の合計
+- 相手が支払った金額のうち、自分の負担分の合計
+- 上記2つの差額が最終的な貸し借り状態
 
 ### 2.3 レスポンス形式
 
 ```typescript
 interface SettlementStatus {
   amount: number;  // プラス：受け取り、マイナス：支払い
+  details: {
+    myPayments: number;      // 自分が支払った合計
+    myShareOfPartner: number; // 相手の支払いの中での自分の負担分
+  }
 }
 ```
 
@@ -30,46 +54,39 @@ interface SettlementStatus {
 
 ```json
 {
-  "amount": 3000  // 3,000円の受け取り
+  "amount": 3000,
+  "details": {
+    "myPayments": 10000,
+    "myShareOfPartner": 7000
+  }
 }
 ```
 
-```json
-{
-  "amount": -2500  // 2,500円の支払い
-}
-```
+### 3. エラーハンドリング
 
-### 3.2 エラーハンドリング
-
-1. バリデーションエラー
-   - 不正なpartnerIdの形式
-   - 数値変換エラー
-
-2. ビジネスロジックエラー
-   - ユーザーが存在しない
-   - 自分自身をpartnerIdに指定
-
-3. データベースエラー
+1. データベースエラー
    - クエリ実行エラー
    - トランザクションエラー
 
-### 3.3 パフォーマンス最適化
+2. 計算エラー
+   - 数値変換エラー
+   - オーバーフローチェック
+
+### 4. パフォーマンス最適化
 
 1. インデックス設計
 
-   ```sql
-   CREATE INDEX idx_shared_expenses_user_settled 
-   ON shared_expenses(user_id, is_settled);
-   
-   CREATE INDEX idx_transactions_payer 
-   ON transactions(payer_id);
-   ```
+```sql
+CREATE INDEX idx_shared_expenses_settled 
+ON shared_expenses(is_settled, transaction_id);
+
+CREATE INDEX idx_transactions_date 
+ON transactions(transaction_date);
+```
 
 2. クエリ最適化
-   - JOINの効率化
    - 必要なカラムのみ取得
-   - サブクエリの最適化
+   - 適切なJOIN条件の設定
 
 ## 4. テスト計画
 

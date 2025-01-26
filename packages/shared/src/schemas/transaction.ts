@@ -4,7 +4,7 @@ import { z } from "zod";
 export const createTransactionSchema = z.object({
 	title: z.string().min(1, "取引内容を入力してください"),
 	amount: z.number().positive("金額は0より大きい値を入力してください"),
-	transactionDate: z.coerce.date(), // 文字列から日付への自動変換を追加
+	transactionDate: z.coerce.date(),
 });
 
 // フロントエンドのフォーム用のスキーマ

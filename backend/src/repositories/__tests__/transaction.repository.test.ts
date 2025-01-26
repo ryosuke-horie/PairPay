@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sharedExpenses, transactions } from '../../../drizzle/schema';
@@ -13,6 +13,8 @@ type MockDb = {
   get: Mock;
   values: Mock;
   execute: Mock;
+  innerJoin: Mock;
+  orderBy: Mock;
   $client: D1Database;
 };
 
@@ -25,9 +27,23 @@ const mockDrizzleInstance = {
   where: vi.fn(),
   get: vi.fn(),
   values: vi.fn(),
-  execute: vi.fn(),
+  execute: vi.fn().mockImplementation(() => []),
+  innerJoin: vi.fn(),
+  orderBy: vi.fn(),
+  returning: vi.fn(),
   $client: {} as D1Database,
 };
+
+// 各メソッドがチェーン可能なように自身を返すように設定
+mockDrizzleInstance.select.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.insert.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.delete.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.from.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.innerJoin.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.orderBy.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
 
 vi.mock('drizzle-orm/d1', () => ({
   drizzle: vi.fn(() => mockDrizzleInstance as unknown as DrizzleD1Database),
@@ -68,6 +84,8 @@ describe('TransactionRepository', () => {
     mockDrizzleInstance.from.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
+    mockDrizzleInstance.innerJoin.mockReturnValue(mockDrizzleInstance);
+    mockDrizzleInstance.orderBy.mockReturnValue(mockDrizzleInstance);
 
     repository = new TransactionRepository(createMockD1Database());
   });
@@ -135,6 +153,10 @@ describe('TransactionRepository', () => {
 
   describe('create', () => {
     it('取引を正常に作成できること', async () => {
+      // returning の結果をモック
+      mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
+      mockDrizzleInstance.execute.mockResolvedValueOnce([{ id: 1 }]);
+
       const input = {
         payerId: 1,
         title: 'スーパーでの買い物',
@@ -144,25 +166,35 @@ describe('TransactionRepository', () => {
 
       await repository.create(input);
 
-      expect(mockDrizzleInstance.insert).toHaveBeenCalled();
-      expect(mockDrizzleInstance.values).toHaveBeenCalledWith({
+      // transactions テーブルへの挿入を確認
+      expect(mockDrizzleInstance.insert).toHaveBeenNthCalledWith(1, transactions);
+      expect(mockDrizzleInstance.values).toHaveBeenNthCalledWith(1, {
         payerId: input.payerId,
         title: input.title,
         amount: input.amount,
         transactionDate: input.transactionDate,
       });
-      expect(mockDrizzleInstance.execute).toHaveBeenCalled();
+
+      // sharedExpenses テーブルへの挿入を確認
+      expect(mockDrizzleInstance.insert).toHaveBeenNthCalledWith(2, sharedExpenses);
+      expect(mockDrizzleInstance.values).toHaveBeenNthCalledWith(2, {
+        transactionId: 1,
+        userId: input.payerId,
+        shareAmount: input.amount / 2,
+        isSettled: false,
+      });
     });
 
     it('作成に失敗した場合エラーをスローすること', async () => {
+      mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
+      mockDrizzleInstance.execute.mockRejectedValueOnce(new Error('Database error'));
+
       const input = {
         payerId: 1,
         title: 'スーパーでの買い物',
         amount: 1000,
         transactionDate: new Date('2024-01-24'),
       };
-
-      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(repository.create(input)).rejects.toThrow('Database error');
     });
@@ -220,6 +252,119 @@ describe('TransactionRepository', () => {
       mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(repository.delete(1)).rejects.toThrow('Database error');
+    });
+  });
+
+  describe('findAllUnSettledTransactions', () => {
+    it('未精算の取引を正しく取得できること', async () => {
+      const mockResult = [
+        {
+          id: 1,
+          payerId: 1,
+          title: 'スーパーでの買い物',
+          amount: 1000,
+          transactionDate: new Date('2024-01-01'),
+          firstShare: 500,
+          secondShare: 500,
+        },
+        {
+          id: 2,
+          payerId: 2,
+          amount: 2000,
+          transactionDate: new Date('2024-01-02'),
+          firstShare: 1000,
+          secondShare: 1000,
+        },
+      ];
+
+      // executeの戻り値を配列として明示的に型付け
+      mockDrizzleInstance.execute.mockResolvedValue([...mockResult]);
+
+      const result = await repository.findAllUnSettledTransactions();
+
+      // クエリの構築が正しいことを確認
+      expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
+        id: transactions.id,
+        payerId: transactions.payerId,
+        title: transactions.title,
+        amount: transactions.amount,
+        transactionDate: transactions.transactionDate,
+        firstShare: sharedExpenses.shareAmount,
+        secondShare: expect.any(Object), // SQLテンプレートリテラルのため、完全一致は検証しない
+      });
+      expect(mockDrizzleInstance.from).toHaveBeenCalledWith(transactions);
+      expect(mockDrizzleInstance.innerJoin).toHaveBeenCalledWith(
+        sharedExpenses,
+        expect.any(Object) // andの条件は複雑なため、呼び出しのみ確認
+      );
+      expect(mockDrizzleInstance.orderBy).toHaveBeenCalledWith(desc(transactions.transactionDate));
+
+      // 結果の変換が正しいことを確認
+      expect(result).toEqual(mockResult);
+    });
+
+    it('未精算の取引が存在しない場合は空配列を返すこと', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue([]);
+
+      const result = await repository.findAllUnSettledTransactions();
+
+      expect(result).toEqual([]);
+    });
+
+    it('secondShareがnullの場合は0に変換されること', async () => {
+      const mockResultWithNullShare = [
+        {
+          id: 1,
+          payerId: 1,
+          title: 'テスト取引',
+          amount: 1000,
+          transactionDate: new Date('2024-01-01'),
+          firstShare: 500,
+          secondShare: null,
+        },
+      ];
+
+      // 配列として明示的に渡す
+      mockDrizzleInstance.execute.mockResolvedValue([...mockResultWithNullShare]);
+
+      const result = await repository.findAllUnSettledTransactions();
+
+      expect(result[0].secondShare).toBe(0);
+    });
+
+    it('取引が日付の降順でソートされていることを確認', async () => {
+      const mockSortedResult = [
+        {
+          id: 1,
+          payerId: 1,
+          amount: 1000,
+          transactionDate: new Date('2024-01-02'),
+          firstShare: 500,
+          secondShare: 500,
+        },
+        {
+          id: 2,
+          payerId: 2,
+          amount: 2000,
+          transactionDate: new Date('2024-01-01'),
+          firstShare: 1000,
+          secondShare: 1000,
+        },
+      ];
+
+      mockDrizzleInstance.execute.mockResolvedValue(mockSortedResult);
+
+      const result = await repository.findAllUnSettledTransactions();
+
+      expect(result[0].transactionDate).toEqual(new Date('2024-01-02'));
+      expect(result[1].transactionDate).toEqual(new Date('2024-01-01'));
+      expect(mockDrizzleInstance.orderBy).toHaveBeenCalledWith(desc(transactions.transactionDate));
+    });
+
+    it('データベースエラーが発生した場合はエラーを伝播すること', async () => {
+      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(repository.findAllUnSettledTransactions()).rejects.toThrow('Database error');
     });
   });
 });
