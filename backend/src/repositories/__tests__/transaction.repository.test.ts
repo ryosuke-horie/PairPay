@@ -1,4 +1,4 @@
-import { eq, desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest';
 import { sharedExpenses, transactions } from '../../../drizzle/schema';
@@ -294,14 +294,16 @@ describe('TransactionRepository', () => {
     });
 
     it('secondShareがnullの場合は0に変換されること', async () => {
-      const mockResultWithNullShare = [{
-        id: 1,
-        payerId: 1,
-        amount: 1000,
-        transactionDate: new Date('2024-01-01'),
-        firstShare: 500,
-        secondShare: null,
-      }];
+      const mockResultWithNullShare = [
+        {
+          id: 1,
+          payerId: 1,
+          amount: 1000,
+          transactionDate: new Date('2024-01-01'),
+          firstShare: 500,
+          secondShare: null,
+        },
+      ];
 
       // 配列として明示的に渡す
       mockDrizzleInstance.execute.mockResolvedValue([...mockResultWithNullShare]);

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
 export const settlementRouter = router({
@@ -15,4 +16,11 @@ export const settlementRouter = router({
       throw error;
     }
   }),
+
+  settle: protectedProcedure
+    .input(z.object({ settlementId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      // 精算処理のロジック
+      return { success: true };
+    }),
 });
