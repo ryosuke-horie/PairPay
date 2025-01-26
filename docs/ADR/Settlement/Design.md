@@ -64,25 +64,6 @@
 - 複数選択可能
 - 精算実行時の確認ダイアログ表示
 
-## 4. 状態管理
-
-### 4.1 表示データ
-
-```typescript
-interface Balance {
-  amount: number;  // プラス：受け取り、マイナス：支払い
-}
-
-interface UnSettledTransaction {
-  id: number;
-  date: Date;
-  payerId: number;
-  amount: number;
-  shareAmount: number;
-  isSettled: boolean;
-}
-```
-
 ## 5. エラーハンドリング
 
 - データ取得・更新失敗時のエラー表示
