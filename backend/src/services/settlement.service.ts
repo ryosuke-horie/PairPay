@@ -1,5 +1,4 @@
 import type { ITransactionRepository } from '../repositories/transaction.repository';
-import type { IUserRepository } from '../repositories/user.repository';
 
 // 未精算取引のリスト
 export interface UnSettledTransactionList {
