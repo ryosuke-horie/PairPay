@@ -13,8 +13,8 @@ export interface UnSettledTransactionResponse {
   id: number;
   payerId: number;
   amount: number;
-  userShare: number;
-  partnerShare: number;
+  firstShare: number;
+  secondShare: number;
   transactionDate: Date;
 }
 
@@ -38,8 +38,7 @@ export interface ITransactionRepository {
     userId: number,
     partnerId: number
   ): Promise<UnSettledTransactionResponse[]>;
-  // 追加: ユーザーの全ての未精算取引を取得
-  findAllUnSettledTransactions(userId: number): Promise<UnSettledTransactionResponse[]>;
+  findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -118,15 +117,15 @@ export class TransactionRepository implements ITransactionRepository {
         payerId: transactions.payerId,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
-        userShare: sharedExpenses.shareAmount,
-        partnerShare: sql<number>`(
+        firstShare: sharedExpenses.shareAmount,
+        secondShare: sql<number>`(
           SELECT share_amount
           FROM ${sharedExpenses}
           WHERE transaction_id = ${transactions.id}
           AND user_id = ${partnerId}
           AND is_settled = 0
           LIMIT 1
-        )`.as('partner_share'),
+        )`.as('second_share'),
       })
       .from(transactions)
       .innerJoin(
@@ -144,47 +143,44 @@ export class TransactionRepository implements ITransactionRepository {
       id: row.id,
       payerId: row.payerId,
       amount: row.amount,
-      userShare: row.userShare,
-      partnerShare: row.partnerShare ?? 0,
+      firstShare: row.firstShare,
+      secondShare: row.secondShare ?? 0,
       transactionDate: row.transactionDate,
     }));
   }
 
-  // 追加: ユーザーの全ての未精算取引を取得
-  async findAllUnSettledTransactions(userId: number): Promise<UnSettledTransactionResponse[]> {
+  // ユーザーIDに依存しない形で全ての未精算取引を取得
+  async findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]> {
     const result = await this.db
       .select({
         id: transactions.id,
         payerId: transactions.payerId,
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
-        userShare: sharedExpenses.shareAmount,
-        partnerShare: sql<number>`(
+        firstShare: sharedExpenses.shareAmount,
+        secondShare: sql<number>`(
           SELECT share_amount
-          FROM ${sharedExpenses}
-          WHERE transaction_id = ${transactions.id}
-          AND user_id != ${userId}
-          AND is_settled = 0
+          FROM ${sharedExpenses} se2
+          WHERE se2.transaction_id = ${transactions.id}
+          AND se2.user_id != ${sharedExpenses.userId}
+          AND se2.is_settled = 0
           LIMIT 1
-        )`.as('partner_share'),
+        )`.as('second_share'),
       })
       .from(transactions)
       .innerJoin(
         sharedExpenses,
-        and(
-          eq(sharedExpenses.transactionId, transactions.id),
-          eq(sharedExpenses.userId, userId),
-          eq(sharedExpenses.isSettled, false)
-        )
+        and(eq(sharedExpenses.transactionId, transactions.id), eq(sharedExpenses.isSettled, false))
       )
-      .orderBy(desc(transactions.transactionDate));
+      .orderBy(desc(transactions.transactionDate))
+      .execute();
 
     return result.map((row) => ({
       id: row.id,
       payerId: row.payerId,
       amount: row.amount,
-      userShare: row.userShare,
-      partnerShare: row.partnerShare ?? 0,
+      firstShare: row.firstShare,
+      secondShare: row.secondShare ?? 0,
       transactionDate: row.transactionDate,
     }));
   }

@@ -1,10 +1,10 @@
 import { protectedProcedure, router } from '../trpc';
 
 export const settlementRouter = router({
-  getStatus: protectedProcedure.query(async ({ ctx }) => {
+  getUnSettlementList: protectedProcedure.query(async ({ ctx }) => {
     const container = ctx.hono.get('container');
     try {
-      return await container.settlementService.getSettlementStatus(Number.parseInt(ctx.user.id));
+      return await container.settlementService.getUnSettlementList();
     } catch (error) {
       // エラーハンドリング
       if (error instanceof Error) {
