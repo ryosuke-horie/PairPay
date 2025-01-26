@@ -6,7 +6,7 @@ export interface SettlementStatus {
 }
 
 export interface ISettlementService {
-  getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus>;
+  getSettlementStatus(userId: number): Promise<SettlementStatus>;
 }
 
 export class SettlementService implements ISettlementService {
@@ -15,27 +15,32 @@ export class SettlementService implements ISettlementService {
     private userRepository: IUserRepository
   ) {}
 
-  async getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus> {
+  async getSettlementStatus(userId: number): Promise<SettlementStatus> {
     // ユーザーの存在確認
-    const [user, partner] = await Promise.all([
-      this.userRepository.findById(userId),
-      this.userRepository.findById(partnerId),
-    ]);
-
-    if (!user || !partner) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
       throw new Error('User not found');
     }
 
-    // 自分自身との精算は不可
-    if (userId === partnerId) {
-      throw new Error('Cannot calculate settlement with yourself');
+    // 未精算取引の取得
+    const transactions = await this.transactionRepository.findAllUnSettledTransactions(userId);
+
+    if (transactions.length === 0) {
+      return { amount: 0 };
     }
 
-    // 未精算取引の取得
-    const transactions = await this.transactionRepository.findUnSettledTransactions(
-      userId,
-      partnerId
-    );
+    // 相手のユーザーIDを抽出し、自分自身との精算をチェック
+    const pairUserIds = transactions.reduce<Set<number>>((ids, tx) => {
+      if (tx.payerId !== userId) {
+        ids.add(tx.payerId);
+      }
+      return ids;
+    }, new Set());
+
+    // 相手が複数いる場合や自分自身との取引のみの場合はエラー
+    if (pairUserIds.size !== 1) {
+      throw new Error('Cannot calculate settlement with yourself');
+    }
 
     // 残高計算
     const amount = transactions.reduce((acc, tx) => {

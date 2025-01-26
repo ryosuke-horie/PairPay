@@ -16,11 +16,11 @@ export const SettlementStatus = ({ amount }: SettlementStatusProps) => {
         <div className="text-center text-lg">
           {isReceiving ? (
             <p>
-              相手から <span className="font-bold text-green-600">¥{formattedAmount}</span> 受け取る
+              合計 <span className="font-bold text-green-600">¥{formattedAmount}</span> を受け取る
             </p>
           ) : (
             <p>
-              相手に <span className="font-bold text-red-600">¥{formattedAmount}</span> 支払う
+              合計 <span className="font-bold text-red-600">¥{formattedAmount}</span> を支払う
             </p>
           )}
         </div>

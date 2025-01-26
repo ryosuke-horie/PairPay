@@ -38,6 +38,8 @@ export interface ITransactionRepository {
     userId: number,
     partnerId: number
   ): Promise<UnSettledTransactionResponse[]>;
+  // 追加: ユーザーの全ての未精算取引を取得
+  findAllUnSettledTransactions(userId: number): Promise<UnSettledTransactionResponse[]>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -136,6 +138,45 @@ export class TransactionRepository implements ITransactionRepository {
         )
       )
       .where(inArray(transactions.payerId, [userId, partnerId]))
+      .orderBy(desc(transactions.transactionDate));
+
+    return result.map((row) => ({
+      id: row.id,
+      payerId: row.payerId,
+      amount: row.amount,
+      userShare: row.userShare,
+      partnerShare: row.partnerShare ?? 0,
+      transactionDate: row.transactionDate,
+    }));
+  }
+
+  // 追加: ユーザーの全ての未精算取引を取得
+  async findAllUnSettledTransactions(userId: number): Promise<UnSettledTransactionResponse[]> {
+    const result = await this.db
+      .select({
+        id: transactions.id,
+        payerId: transactions.payerId,
+        amount: transactions.amount,
+        transactionDate: transactions.transactionDate,
+        userShare: sharedExpenses.shareAmount,
+        partnerShare: sql<number>`(
+          SELECT share_amount
+          FROM ${sharedExpenses}
+          WHERE transaction_id = ${transactions.id}
+          AND user_id != ${userId}
+          AND is_settled = 0
+          LIMIT 1
+        )`.as('partner_share'),
+      })
+      .from(transactions)
+      .innerJoin(
+        sharedExpenses,
+        and(
+          eq(sharedExpenses.transactionId, transactions.id),
+          eq(sharedExpenses.userId, userId),
+          eq(sharedExpenses.isSettled, false)
+        )
+      )
       .orderBy(desc(transactions.transactionDate));
 
     return result.map((row) => ({
