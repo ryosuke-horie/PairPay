@@ -1,7 +1,7 @@
 import { useTransition, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, Pencil } from 'lucide-react';
 import { formatJPY } from '@/lib/utils';
 import { api } from '@/trpc/client';
 import { useToast } from '@/hooks/use-toast';
@@ -50,7 +50,10 @@ export const UnSettlementCard = (props: UnSettlementCardProps) => {
         >
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-base font-semibold sm:text-sm">{props.title}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-base font-semibold sm:text-sm">{props.title}</p>
+                <Pencil className="h-4 w-4 text-muted-foreground" />
+              </div>
             </div>
             <div className="flex items-start gap-3 sm:gap-4">
               <div className="text-right">
