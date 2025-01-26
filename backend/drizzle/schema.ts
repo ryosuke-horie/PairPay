@@ -14,37 +14,45 @@ export const users = sqliteTable('users', {
 // 取引（収支）テーブル
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  // タイトル（取引の内容）
   title: text('title').notNull(),
-  // 支出者のID
   payerId: integer('payer_id')
     .notNull()
     .references(() => users.id),
-  // 金額
   amount: integer('amount').notNull(),
-  // 取引日
+  // 取引の種類を追加（shared: 共同支出, personal: 個人支出）
+  type: text('type', { enum: ['shared', 'personal'] }).notNull().default('shared'),
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-// 共同支出の割り当てテーブル
+// 共同支出の割り当てテーブルを最適化
 export const sharedExpenses = sqliteTable('shared_expenses', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  // 取引ID
   transactionId: integer('transaction_id')
     .notNull()
     .references(() => transactions.id),
-  // 割り当てられるユーザーID
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
-  // 負担額
+  // 負担割合を追加（デフォルトは0.5 = 50%）
+  shareRatio: real('share_ratio').notNull().default(0.5),
+  // 負担額（計算済みの金額）
   shareAmount: real('share_amount').notNull(),
-  // 精算済みフラグ
   isSettled: integer('is_settled', { mode: 'boolean' }).notNull().default(false),
-  // 精算日
   settledAt: integer('settled_at', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+// インデックスの作成
+export const sharedExpensesIndexes = {
+  settledIndex: sql`
+    CREATE INDEX IF NOT EXISTS idx_shared_expenses_settled 
+    ON shared_expenses(is_settled, transaction_id)
+  `,
+  transactionDateIndex: sql`
+    CREATE INDEX IF NOT EXISTS idx_transactions_date 
+    ON transactions(transaction_date)
+  `
+};
