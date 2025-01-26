@@ -35,9 +35,7 @@ export const sharedExpenses = sqliteTable('shared_expenses', {
   userId: integer('user_id')
     .notNull()
     .references(() => users.id),
-  // 負担割合を追加（デフォルトは0.5 = 50%）
-  shareRatio: real('share_ratio').notNull().default(0.5),
-  // 負担額（計算済みの金額）
+  shareRatio: real('share_ratio').notNull().default(50),
   shareAmount: real('share_amount').notNull(),
   isSettled: integer('is_settled', { mode: 'boolean' }).notNull().default(false),
   settledAt: integer('settled_at', { mode: 'timestamp' }),
