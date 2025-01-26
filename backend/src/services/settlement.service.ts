@@ -1,21 +1,21 @@
 import type { ITransactionRepository } from '../repositories/transaction.repository';
 import type { IUserRepository } from '../repositories/user.repository';
 
-export interface Balance {
-  amount: number;
+export interface SettlementStatus {
+  amount: number; // プラス：受け取り、マイナス：支払い
 }
 
-export interface IBalanceService {
-  getBalance(userId: number, partnerId: number): Promise<Balance>;
+export interface ISettlementService {
+  getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus>;
 }
 
-export class BalanceService implements IBalanceService {
+export class SettlementService implements ISettlementService {
   constructor(
     private transactionRepository: ITransactionRepository,
     private userRepository: IUserRepository
   ) {}
 
-  async getBalance(userId: number, partnerId: number): Promise<Balance> {
+  async getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus> {
     // ユーザーの存在確認
     const [user, partner] = await Promise.all([
       this.userRepository.findById(userId),
@@ -28,7 +28,7 @@ export class BalanceService implements IBalanceService {
 
     // 自分自身との精算は不可
     if (userId === partnerId) {
-      throw new Error('Cannot calculate balance with yourself');
+      throw new Error('Cannot calculate settlement with yourself');
     }
 
     // 未精算取引の取得
@@ -38,7 +38,7 @@ export class BalanceService implements IBalanceService {
     );
 
     // 残高計算
-    const balance = transactions.reduce((acc, tx) => {
+    const amount = transactions.reduce((acc, tx) => {
       if (tx.payerId === userId) {
         // 自分が支払った場合：相手の負担額を加算
         return acc + tx.partnerShare;
@@ -47,6 +47,6 @@ export class BalanceService implements IBalanceService {
       return acc - tx.userShare;
     }, 0);
 
-    return { amount: balance };
+    return { amount };
   }
 }
