@@ -77,7 +77,7 @@ export default function SettlementsPage() {
 
   return (
     <div className="container max-w-screen-md py-6">
-      <h1 className="mb-6 text-2xl font-bold">未精算一覧</h1>
+      <h1 className="mb-6 text-2xl font-bold">未精算管理</h1>
       <UnSettlementList 
         settlements={settlements?.transactions ?? []} 
         onUpdateShare={handleUpdateShare}
