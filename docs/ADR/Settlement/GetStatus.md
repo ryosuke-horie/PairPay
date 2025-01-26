@@ -11,7 +11,7 @@
 
 ```mermaid
 graph TD
-    A[tRPC Router] --> B[BalanceService]
+    A[tRPC Router] --> B[SettlementService]
     B --> C[TransactionRepository]
     B --> D[UserRepository]
     C --> E[D1 Database]
@@ -39,18 +39,18 @@ interface UnSettledTransactionResponse {
 }
 
 // Service
-interface IBalanceService {
-  getBalance(userId: number, partnerId: number): Promise<Balance>;
+interface ISettlementService {
+  getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus>;
 }
 
 // tRPCルーター定義
-getBalance: protectedProcedure
+getStatus: protectedProcedure
   .input(z.object({
     partnerId: z.string()
   }))
   .query(async ({ ctx, input }) => {
     const container = ctx.get('container');
-    return await container.balanceService.getBalance(
+    return await container.settlementService.getSettlementStatus(
       ctx.user.id,
       parseInt(input.partnerId)
     );
@@ -60,7 +60,7 @@ getBalance: protectedProcedure
 ### 2.3 レスポンス形式
 
 ```typescript
-interface Balance {
+interface SettlementStatus {
   amount: number;  // プラス：受け取り、マイナス：支払い
 }
 ```
@@ -133,13 +133,13 @@ export class TransactionRepository implements ITransactionRepository {
 #### BalanceService
 
 ```typescript
-export class BalanceService implements IBalanceService {
+export class SettlementService implements ISettlementService {
   constructor(
     private transactionRepository: ITransactionRepository,
     private userRepository: IUserRepository
   ) {}
 
-  async getBalance(userId: number, partnerId: number): Promise<Balance> {
+  async getSettlementStatus(userId: number, partnerId: number): Promise<SettlementStatus> {
     // ユーザーの存在確認
     const [user, partner] = await Promise.all([
       this.userRepository.findById(userId),
@@ -209,8 +209,8 @@ export class BalanceService implements IBalanceService {
    - findUnSettledTransactionsのテスト
    - エッジケースの確認
 
-2. BalanceService
-   - getBalanceのテスト
+2. SettlementService
+   - getSettlementStatusのテスト
    - 計算ロジックの検証
 
 ### 4.2 統合テスト
