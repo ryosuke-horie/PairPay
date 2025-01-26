@@ -9,6 +9,8 @@ export interface UnSettledTransactionList {
     amount: number;
     firstShare: number;
     secondShare: number;
+    firstShareRatio: number;
+    secondShareRatio: number;
     transactionDate: Date;
   }[];
 }

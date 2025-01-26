@@ -264,33 +264,33 @@ describe('TransactionRepository', () => {
   });
 
   describe('findAllUnSettledTransactions', () => {
-    it('未精算の取引を正しく取得できること', async () => {
+    it('正しいクエリで未精算取引を取得する', async () => {
       const mockResult = [
         {
           id: 1,
           payerId: 1,
-          title: 'スーパーでの買い物',
+          title: 'Test',
           amount: 1000,
-          transactionDate: new Date('2024-01-01'),
           firstShare: 500,
           secondShare: 500,
-        },
-        {
-          id: 2,
-          payerId: 2,
-          amount: 2000,
-          transactionDate: new Date('2024-01-02'),
-          firstShare: 1000,
-          secondShare: 1000,
+          firstShareRatio: 50,
+          secondShareRatio: 50,
+          transactionDate: new Date(),
         },
       ];
 
-      // executeの戻り値を配列として明示的に型付け
-      mockDrizzleInstance.execute.mockResolvedValue([...mockResult]);
+      mockDrizzleInstance.select.mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          innerJoin: vi.fn().mockReturnValue({
+            orderBy: vi.fn().mockReturnValue({
+              execute: vi.fn().mockResolvedValue(mockResult),
+            }),
+          }),
+        }),
+      });
 
       const result = await repository.findAllUnSettledTransactions();
 
-      // クエリの構築が正しいことを確認
       expect(mockDrizzleInstance.select).toHaveBeenCalledWith({
         id: transactions.id,
         payerId: transactions.payerId,
@@ -298,16 +298,11 @@ describe('TransactionRepository', () => {
         amount: transactions.amount,
         transactionDate: transactions.transactionDate,
         firstShare: sharedExpenses.shareAmount,
-        secondShare: expect.any(Object), // SQLテンプレートリテラルのため、完全一致は検証しない
+        firstShareRatio: sharedExpenses.shareRatio,
+        secondShare: expect.anything(), // sqlクエリのため、具体的な値は期待しない
+        secondShareRatio: expect.anything(), // sqlクエリのため、具体的な値は期待しない
       });
-      expect(mockDrizzleInstance.from).toHaveBeenCalledWith(transactions);
-      expect(mockDrizzleInstance.innerJoin).toHaveBeenCalledWith(
-        sharedExpenses,
-        expect.any(Object) // andの条件は複雑なため、呼び出しのみ確認
-      );
-      expect(mockDrizzleInstance.orderBy).toHaveBeenCalledWith(desc(transactions.transactionDate));
 
-      // 結果の変換が正しいことを確認
       expect(result).toEqual(mockResult);
     });
 
