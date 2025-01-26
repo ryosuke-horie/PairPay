@@ -9,6 +9,12 @@ export interface TransactionCreateInput {
   transactionDate: Date;
 }
 
+export interface TransactionUpdateShareInput {
+  settlementId: number;
+  shareRatio: number;
+  shareAmount: number;
+}
+
 export interface UnSettledTransactionResponse {
   id: number;
   payerId: number;
@@ -29,6 +35,12 @@ export interface TransactionResponse {
   updatedAt: Date;
 }
 
+export interface TransactionUpdateShareInput {
+  settlementId: number;
+  shareRatio: number;
+  shareAmount: number;
+}
+
 export interface ITransactionRepository {
   create(data: TransactionCreateInput): Promise<void>;
   findById(id: number): Promise<TransactionResponse | undefined>;
@@ -40,6 +52,8 @@ export interface ITransactionRepository {
     partnerId: number
   ): Promise<UnSettledTransactionResponse[]>;
   findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]>;
+  settleTransaction(settlementId: number): Promise<void>;
+  updateShare(settlementId: number, shareRatio: number, shareAmount: number): Promise<void>;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -208,5 +222,21 @@ export class TransactionRepository implements ITransactionRepository {
 
     // 次に取引レコードを削除
     await this.db.delete(transactions).where(eq(transactions.id, id)).execute();
+  }
+
+  async settleTransaction(settlementId: number): Promise<void> {
+    await this.db
+      .update(sharedExpenses)
+      .set({ isSettled: true })
+      .where(eq(sharedExpenses.transactionId, settlementId))
+      .execute();
+  }
+
+  async updateShare(settlementId: number, shareRatio: number, shareAmount: number): Promise<void> {
+    await this.db
+      .update(sharedExpenses)
+      .set({ shareRatio, shareAmount })
+      .where(eq(sharedExpenses.transactionId, settlementId))
+      .execute();
   }
 }

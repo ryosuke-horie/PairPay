@@ -8,6 +8,8 @@ type MockDb = {
   select: Mock;
   insert: Mock;
   delete: Mock;
+  update: Mock;
+  set: Mock;
   from: Mock;
   where: Mock;
   get: Mock;
@@ -23,6 +25,8 @@ const mockDrizzleInstance = {
   select: vi.fn(),
   insert: vi.fn(),
   delete: vi.fn(),
+  update: vi.fn(),
+  set: vi.fn(),
   from: vi.fn(),
   where: vi.fn(),
   get: vi.fn(),
@@ -38,6 +42,8 @@ const mockDrizzleInstance = {
 mockDrizzleInstance.select.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.insert.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.delete.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.update.mockReturnValue(mockDrizzleInstance);
+mockDrizzleInstance.set.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.from.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
 mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
@@ -81,6 +87,8 @@ describe('TransactionRepository', () => {
     mockDrizzleInstance.select.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.insert.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.delete.mockReturnValue(mockDrizzleInstance);
+    mockDrizzleInstance.update.mockReturnValue(mockDrizzleInstance);
+    mockDrizzleInstance.set.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.from.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.where.mockReturnValue(mockDrizzleInstance);
     mockDrizzleInstance.values.mockReturnValue(mockDrizzleInstance);
@@ -365,6 +373,44 @@ describe('TransactionRepository', () => {
       mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
 
       await expect(repository.findAllUnSettledTransactions()).rejects.toThrow('Database error');
+    });
+  });
+
+  describe('settleTransaction', () => {
+    it('取引を正常に精算済みにできること', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue(undefined);
+
+      await repository.settleTransaction(1);
+
+      // updateの呼び出しを確認
+      expect(mockDrizzleInstance.update).toHaveBeenCalledWith(sharedExpenses);
+      expect(mockDrizzleInstance.set).toHaveBeenCalledWith({ isSettled: true });
+      expect(mockDrizzleInstance.where).toHaveBeenCalledWith(eq(sharedExpenses.transactionId, 1));
+      expect(mockDrizzleInstance.execute).toHaveBeenCalled();
+    });
+
+    it('精算処理に失敗した場合エラーをスローすること', async () => {
+      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(repository.settleTransaction(1)).rejects.toThrow('Database error');
+    });
+
+    it('存在しない取引IDの場合でもエラーにならないこと', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue(undefined);
+
+      await expect(repository.settleTransaction(999)).resolves.not.toThrow();
+    });
+  });
+
+  describe('updateShare', () => {
+    it('負担割合・負担金額の更新が正常に完了すること', async () => {
+      mockDrizzleInstance.execute.mockResolvedValue(undefined);
+    });
+
+    it('負担割合・負担金額の更新でエラーが発生した場合、エラーがスローされること', async () => {
+      mockDrizzleInstance.execute.mockRejectedValue(new Error('Database error'));
+
+      await expect(repository.updateShare(1, 0.5, 500)).rejects.toThrow('Database error');
     });
   });
 });
