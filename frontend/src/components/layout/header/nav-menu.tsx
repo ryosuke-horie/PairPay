@@ -14,7 +14,11 @@ import { cn } from '@/lib/utils';
 const routes = [
   {
     href: '/transactions',
-    label: '収支一覧',
+    label: '支出',
+  },
+  {
+    href: '/settlements',
+    label: '精算',
   },
 ] as const;
 
