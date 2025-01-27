@@ -4,6 +4,11 @@ compatibility_date = "2025-01-18"
 
 # compatibility_flags = [ "nodejs_compat" ]
 
+# カスタムドメイン
+routes = [
+  { pattern = "worker.pair-pay.work", custom_domain = true }
+]
+
 [vars]
 # JWT署名用のシークレットキー（本番環境用はCloudflareのダッシュボードで設定）
 JWT_SECRET = "local_development_secret_key_2025"

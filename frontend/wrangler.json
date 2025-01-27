@@ -13,14 +13,20 @@
     "enabled": true
   },
   "vars": {
-    "NEXT_PUBLIC_BACKEND_URL": "https://share-purse-backend.ryosuke-horie37.workers.dev"
+    "NEXT_PUBLIC_BACKEND_URL": "https://worker.pair-pay.work"
   },
   "env": {
     "staging": {
-      "name": "share-purse-frontend-staging",
+      "name": "pair-pay-staging",
       "vars": {
-        "NEXT_PUBLIC_BACKEND_URL": "https://share-purse-backend.ryosuke-horie37.workers.dev"
+        "NEXT_PUBLIC_BACKEND_URL": "https://worker.pair-pay.work"
       }
     }
-  }
+  },
+  "routes": [
+    {
+      "pattern": "pair-pay.work",
+      "custom_domain": true
+    }
+  ]
 }
