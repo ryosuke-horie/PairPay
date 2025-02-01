@@ -11,7 +11,7 @@ export const users = sqliteTable('users', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-// 取引（収支）テーブル
+// 支出テーブル
 export const transactions = sqliteTable('transactions', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   title: text('title').notNull(),
@@ -19,7 +19,6 @@ export const transactions = sqliteTable('transactions', {
     .notNull()
     .references(() => users.id),
   amount: integer('amount').notNull(),
-  // 取引の種類を追加（shared: 共同支出, personal: 個人支出）
   type: text('type', { enum: ['shared', 'personal'] }).notNull().default('shared'),
   transactionDate: integer('transaction_date', { mode: 'timestamp' }).notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),

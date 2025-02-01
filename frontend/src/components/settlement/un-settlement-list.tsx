@@ -20,7 +20,7 @@ export const UnSettlementList = ({ settlements, onUpdateShare }: UnSettlementLis
     return (
       <div className="rounded-lg border border-muted p-4">
         <p className="text-sm text-muted-foreground">
-          未精算の取引はありません。
+          未精算の支出はありません。
         </p>
       </div>
     );

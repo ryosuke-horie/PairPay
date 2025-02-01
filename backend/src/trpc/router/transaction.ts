@@ -4,7 +4,7 @@ import { convertToTRPCError } from '../../utils/error.js';
 import { protectedProcedure, router } from '../trpc.js';
 
 export const transactionRouter = router({
-  // 取引作成
+  // 支出作成
   create: protectedProcedure.input(createTransactionSchema).mutation(async ({ input, ctx }) => {
     try {
       const container = ctx.hono.get('container');
@@ -16,14 +16,14 @@ export const transactionRouter = router({
       });
 
       return {
-        message: '取引を登録しました',
+        message: '支出を登録しました',
       };
     } catch (error) {
       throw convertToTRPCError(error);
     }
   }),
 
-  // 取引履歴取得
+  // 支出履歴取得
   list: protectedProcedure.query(async ({ ctx }) => {
     try {
       const container = ctx.hono.get('container');
@@ -37,7 +37,7 @@ export const transactionRouter = router({
     }
   }),
 
-  // 取引削除
+  // 支出削除
   delete: protectedProcedure
     .input(z.object({ transactionId: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -49,7 +49,7 @@ export const transactionRouter = router({
         );
 
         return {
-          message: '取引を削除しました',
+          message: '支出を削除しました',
         };
       } catch (error) {
         throw convertToTRPCError(error);

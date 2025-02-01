@@ -55,7 +55,7 @@ vi.mock('drizzle-orm/d1', () => ({
   drizzle: vi.fn(() => mockDrizzleInstance as unknown as DrizzleD1Database),
 }));
 
-// モック取引データ
+// モック支出データ
 const mockTransaction = {
   id: 1,
   payerId: 1,
@@ -99,7 +99,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('findById', () => {
-    it('IDで取引を正常に検索できること', async () => {
+    it('IDで支出を正常に検索できること', async () => {
       mockDrizzleInstance.get.mockResolvedValue(mockTransaction);
 
       const result = await repository.findById(1);
@@ -129,7 +129,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('findByPayerId', () => {
-    it('支払者IDで取引を正常に検索できること', async () => {
+    it('支払者IDで支出を正常に検索できること', async () => {
       const mockTransactions = [mockTransaction];
       mockDrizzleInstance.execute.mockResolvedValue(mockTransactions);
 
@@ -150,7 +150,7 @@ describe('TransactionRepository', () => {
       expect(result).toEqual(mockTransactions);
     });
 
-    it('取引が存在しない場合は空配列を返すこと', async () => {
+    it('支出が存在しない場合は空配列を返すこと', async () => {
       mockDrizzleInstance.execute.mockResolvedValue([]);
 
       const result = await repository.findByPayerId(999);
@@ -160,7 +160,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('create', () => {
-    it('取引を正常に作成できること', async () => {
+    it('支出を正常に作成できること', async () => {
       // returning の結果をモック
       mockDrizzleInstance.returning.mockReturnValue(mockDrizzleInstance);
       mockDrizzleInstance.execute.mockResolvedValueOnce([{ id: 1 }]);
@@ -209,7 +209,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('findAll', () => {
-    it('全ての取引を正常に取得できること', async () => {
+    it('全ての支出を正常に取得できること', async () => {
       const mockTransactions = [mockTransaction];
       mockDrizzleInstance.execute.mockResolvedValue(mockTransactions);
 
@@ -229,7 +229,7 @@ describe('TransactionRepository', () => {
       expect(result).toEqual(mockTransactions);
     });
 
-    it('取引が存在しない場合は空配列を返すこと', async () => {
+    it('支出が存在しない場合は空配列を返すこと', async () => {
       mockDrizzleInstance.execute.mockResolvedValue([]);
 
       const result = await repository.findAll();
@@ -239,7 +239,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('delete', () => {
-    it('取引を正常に削除できること', async () => {
+    it('支出を正常に削除できること', async () => {
       mockDrizzleInstance.execute.mockResolvedValue(undefined);
 
       await repository.delete(1);
@@ -251,7 +251,7 @@ describe('TransactionRepository', () => {
         eq(sharedExpenses.transactionId, 1)
       );
 
-      // その後、取引レコードが削除されること
+      // その後、支出レコードが削除されること
       expect(mockDrizzleInstance.delete).toHaveBeenNthCalledWith(2, transactions);
       expect(mockDrizzleInstance.where).toHaveBeenNthCalledWith(2, eq(transactions.id, 1));
     });
@@ -264,7 +264,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('findAllUnSettledTransactions', () => {
-    it('正しいクエリで未精算取引を取得する', async () => {
+    it('正しいクエリで未精算支出を取得する', async () => {
       const mockResult = [
         {
           id: 1,
@@ -306,7 +306,7 @@ describe('TransactionRepository', () => {
       expect(result).toEqual(mockResult);
     });
 
-    it('未精算の取引が存在しない場合は空配列を返すこと', async () => {
+    it('未精算の支出が存在しない場合は空配列を返すこと', async () => {
       mockDrizzleInstance.execute.mockResolvedValue([]);
 
       const result = await repository.findAllUnSettledTransactions();
@@ -319,7 +319,7 @@ describe('TransactionRepository', () => {
         {
           id: 1,
           payerId: 1,
-          title: 'テスト取引',
+          title: 'テスト支出',
           amount: 1000,
           transactionDate: new Date('2024-01-01'),
           firstShare: 500,
@@ -335,7 +335,7 @@ describe('TransactionRepository', () => {
       expect(result[0].secondShare).toBe(0);
     });
 
-    it('取引が日付の降順でソートされていることを確認', async () => {
+    it('支出が日付の降順でソートされていることを確認', async () => {
       const mockSortedResult = [
         {
           id: 1,
@@ -372,7 +372,7 @@ describe('TransactionRepository', () => {
   });
 
   describe('settleTransaction', () => {
-    it('取引を正常に精算済みにできること', async () => {
+    it('支出を正常に精算済みにできること', async () => {
       mockDrizzleInstance.execute.mockResolvedValue(undefined);
 
       await repository.settleTransaction(1);
@@ -390,7 +390,7 @@ describe('TransactionRepository', () => {
       await expect(repository.settleTransaction(1)).rejects.toThrow('Database error');
     });
 
-    it('存在しない取引IDの場合でもエラーにならないこと', async () => {
+    it('存在しない支出IDの場合でもエラーにならないこと', async () => {
       mockDrizzleInstance.execute.mockResolvedValue(undefined);
 
       await expect(repository.settleTransaction(999)).resolves.not.toThrow();

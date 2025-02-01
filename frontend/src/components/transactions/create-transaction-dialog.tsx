@@ -45,12 +45,12 @@ export function CreateTransactionDialog() {
   // tRPCのミューテーション
   const createMutation = api.transaction.create.useMutation({
     onSuccess: () => {
-      // 取引一覧を再取得
+      // 支出一覧を再取得
       utils.transaction.list.invalidate();
       // 未精算一覧も再取得
       utils.settlement.getUnSettlementList.invalidate();
       toast({
-        title: "取引を登録しました",
+        title: "支出を登録しました",
       });
       form.reset();
       setIsOpen(false);
@@ -83,24 +83,24 @@ export function CreateTransactionDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>取引を登録</Button>
+        <Button>支出を登録</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>取引の登録</DialogTitle>
+          <DialogTitle>支出の登録</DialogTitle>
           <DialogDescription>
             新しい共同支出を登録します。
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* 取引内容入力 */}
+            {/* 支出内容入力 */}
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>取引内容</FormLabel>
+                  <FormLabel>支出内容</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="例：食費、交通費など"
@@ -131,13 +131,13 @@ export function CreateTransactionDialog() {
               )}
             />
 
-            {/* 取引日選択 */}
+            {/* 支出日選択 */}
             <FormField
               control={form.control}
               name="transactionDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>取引日</FormLabel>
+                  <FormLabel>支出日</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>

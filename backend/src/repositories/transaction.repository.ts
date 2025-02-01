@@ -136,53 +136,7 @@ export class TransactionRepository implements ITransactionRepository {
       .execute();
   }
 
-  //   async findUnSettledTransactions(
-  //     userId: number,
-  //     partnerId: number
-  //   ): Promise<UnSettledTransactionResponse[]> {
-  //     const result = await this.db
-  //       .select({
-  //         id: transactions.id,
-  //         payerId: transactions.payerId,
-  //         title: transactions.title,
-  //         amount: transactions.amount,
-  //         transactionDate: transactions.transactionDate,
-  //         firstShare: sharedExpenses.shareAmount,
-  //         secondShare: sql<number>`(
-  //           SELECT share_amount
-  //           FROM ${sharedExpenses}
-  //           WHERE transaction_id = ${transactions.id}
-  //           AND user_id = ${partnerId}
-  //           AND is_settled = 0
-  //           LIMIT 1
-  //         )`.as('second_share'),
-  //       })
-  //       .from(transactions)
-  //       .innerJoin(
-  //         sharedExpenses,
-  //         and(
-  //           eq(sharedExpenses.transactionId, transactions.id),
-  //           eq(sharedExpenses.userId, userId),
-  //           eq(sharedExpenses.isSettled, false)
-  //         )
-  //       )
-  //       .where(inArray(transactions.payerId, [userId, partnerId]))
-  //       .orderBy(desc(transactions.transactionDate));
-
-  //     return result.map((row) => ({
-  //       id: row.id,
-  //       payerId: row.payerId,
-  //       title: row.title,
-  //       amount: row.amount,
-  //       firstShare: row.firstShare,
-  //       secondShare: row.secondShare ?? 0,
-  //       firstShareRatio: 50,
-  //       secondShareRatio: 50,
-  //       transactionDate: row.transactionDate,
-  //     }));
-  //   }
-
-  // ユーザーIDに依存しない形で全ての未精算取引を取得
+  // ユーザーIDに依存しない形で全ての未精算支出を取得
   async findAllUnSettledTransactions(): Promise<UnSettledTransactionResponse[]> {
     const result = await this.db
       .select({
@@ -234,8 +188,7 @@ export class TransactionRepository implements ITransactionRepository {
   async delete(id: number): Promise<void> {
     // まず関連する共同支出レコードを削除
     await this.db.delete(sharedExpenses).where(eq(sharedExpenses.transactionId, id)).execute();
-
-    // 次に取引レコードを削除
+    // 支出レコードを削除
     await this.db.delete(transactions).where(eq(transactions.id, id)).execute();
   }
 
