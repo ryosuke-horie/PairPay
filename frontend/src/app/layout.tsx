@@ -23,8 +23,11 @@ export default function RootLayout({
         <TrpcProvider>
           <main className="relative flex min-h-full flex-col bg-background">
             <Header />
-            <div className="flex-1 px-2 pb-safe-area-inset-bottom sm:px-4">
-              {children}
+            <div className="flex-1 pb-safe-area-inset-bottom">
+              {/* ヘッダーと同じコンテナ設定 */}
+              <div className="container mx-auto px-2 sm:px-4">
+                {children}
+              </div>
             </div>
           </main>
           <Toaster />
