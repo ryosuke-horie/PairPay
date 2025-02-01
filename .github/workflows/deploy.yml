@@ -2,31 +2,32 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
   build-shared:
     name: Build Shared Package
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: package-lock.json
-      
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Build Shared Package
         run: npm run build -w shared
-      
+
       - name: Upload Shared Build
         uses: actions/upload-artifact@v4
         with:
@@ -37,30 +38,30 @@ jobs:
     name: Deploy Backend
     needs: build-shared
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: package-lock.json
-      
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Download Shared Build
         uses: actions/download-artifact@v4
         with:
           name: shared-build
           path: packages/shared/dist
-      
+
       - name: Lint Backend
         run: npm run lint -w backend
-      
+
       - name: Deploy Backend
         uses: cloudflare/wrangler-action@v3
         with:
@@ -68,35 +69,35 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: backend
           command: deploy
-  
+
   deploy-frontend:
     name: Deploy Frontend
     needs: build-shared
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: package-lock.json
-      
+
       - name: Install Dependencies
         run: npm ci
-      
+
       - name: Download Shared Build
         uses: actions/download-artifact@v4
         with:
           name: shared-build
           path: packages/shared/dist
-      
+
       - name: Build Frontend
         run: npm run build -w frontend
-      
+
       - name: Deploy Frontend
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
