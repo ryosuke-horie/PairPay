@@ -1,4 +1,4 @@
-# Share Purse
+# PairPay
 
 ## 概要
 

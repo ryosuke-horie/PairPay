@@ -1,7 +1,7 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 // デフォルトのバックエンドURL設定
-const DEFAULT_BACKEND_URL = 'https://share-purse-backend.ryosuke-horie37.workers.dev';
+const DEFAULT_BACKEND_URL = 'https://pair-pay.work';
 const DEVELOPMENT_BACKEND_URL = 'http://localhost:8787';
 
 // SSR時の環境変数取得
