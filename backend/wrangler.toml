@@ -10,7 +10,6 @@ routes = [
 ]
 
 [vars]
-# JWT署名用のシークレットキー（本番環境用はCloudflareのダッシュボードで設定）
 JWT_SECRET = "local_development_secret_key_2025"
 
 # [[kv_namespaces]]
@@ -23,8 +22,8 @@ JWT_SECRET = "local_development_secret_key_2025"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "share-purse-db"
-database_id = "dfb91fa4-b9d4-4c95-9d8d-53dd70b39200"
+database_name = "pairPayDB"
+database_id = "8e9e1073-7728-469d-9e83-e83be8bad035"
 
 # [ai]
 # binding = "AI"
