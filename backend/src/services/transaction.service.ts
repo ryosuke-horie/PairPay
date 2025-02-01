@@ -30,7 +30,7 @@ export class TransactionService implements ITransactionService {
       throw new Error('Amount must be greater than 0');
     }
 
-    // 取引日の検証
+    // 支出日の検証
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const transactionDate = new Date(data.transactionDate);
@@ -46,7 +46,7 @@ export class TransactionService implements ITransactionService {
       throw new Error('User not found');
     }
 
-    // 取引の作成
+    // 支出の作成
     await this.transactionRepository.create(data);
   }
 
@@ -57,23 +57,23 @@ export class TransactionService implements ITransactionService {
       throw new Error('User not found');
     }
 
-    // 取引履歴の取得
+    // 支出履歴の取得
     return await this.transactionRepository.findByPayerId(payerId);
   }
 
   async getAllTransactions(): Promise<TransactionResponse[]> {
-    // 全ての取引履歴を取得
+    // 全ての支出履歴を取得
     return await this.transactionRepository.findAll();
   }
 
   async deleteTransaction(transactionId: number, userId: number): Promise<void> {
-    // 取引の存在確認
+    // 支出の存在確認
     const transaction = await this.transactionRepository.findById(transactionId);
     if (!transaction) {
-      throw new Error('指定された取引が見つかりません');
+      throw new Error('指定された支出が見つかりません');
     }
 
-    // 取引の削除
+    // 支出の削除
     await this.transactionRepository.delete(transactionId);
   }
 }

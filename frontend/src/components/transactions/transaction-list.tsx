@@ -26,7 +26,7 @@ export const TransactionList = () => {
     return (
       <div className="rounded-lg border border-destructive p-4">
         <p className="text-sm text-destructive">
-          取引データの取得に失敗しました。
+          支出データの取得に失敗しました。
         </p>
       </div>
     );
@@ -36,7 +36,7 @@ export const TransactionList = () => {
     return (
       <div className="rounded-lg border border-muted p-4">
         <p className="text-sm text-muted-foreground">
-          取引データがありません。
+          支出データがありません。
         </p>
       </div>
     );

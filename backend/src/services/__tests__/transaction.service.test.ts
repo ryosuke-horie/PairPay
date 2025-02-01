@@ -59,7 +59,7 @@ describe('TransactionService', () => {
       transactionDate: new Date('2024-01-24'),
     };
 
-    it('正常に取引を作成できること', async () => {
+    it('正常に支出を作成できること', async () => {
       // ユーザーの存在確認のモック
       mockUserRepository.findById.mockResolvedValue(mockUser);
 
@@ -108,7 +108,7 @@ describe('TransactionService', () => {
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
-    it('取引日が未来の場合エラーをスローすること', async () => {
+    it('支出日が未来の場合エラーをスローすること', async () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
 
@@ -125,7 +125,7 @@ describe('TransactionService', () => {
   });
 
   describe('getTransactionsByPayerId', () => {
-    it('ユーザーの取引履歴を取得できること', async () => {
+    it('ユーザーの支出履歴を取得できること', async () => {
       const mockTransactions: TransactionResponse[] = [
         {
           id: 1,
@@ -157,7 +157,7 @@ describe('TransactionService', () => {
   });
 
   describe('getAllTransactions', () => {
-    it('全ての取引履歴を取得できること', async () => {
+    it('全ての支出履歴を取得できること', async () => {
       const mockTransactions: TransactionResponse[] = [
         {
           id: 1,
@@ -187,7 +187,7 @@ describe('TransactionService', () => {
       expect(result).toEqual(mockTransactions);
     });
 
-    it('取引が存在しない場合は空配列を返すこと', async () => {
+    it('支出が存在しない場合は空配列を返すこと', async () => {
       mockTransactionRepository.findAll.mockResolvedValue([]);
 
       const result = await service.getAllTransactions();
@@ -206,8 +206,8 @@ describe('TransactionService', () => {
         updatedAt: new Date(),
       };
 
-      it('正常に取引を削除できること', async () => {
-        // 取引の存在確認のモック
+      it('正常に支出を削除できること', async () => {
+        // 支出の存在確認のモック
         mockTransactionRepository.findById.mockResolvedValue(mockTransaction);
         mockTransactionRepository.delete.mockResolvedValue(undefined);
 
@@ -217,11 +217,11 @@ describe('TransactionService', () => {
         expect(mockTransactionRepository.delete).toHaveBeenCalledWith(1);
       });
 
-      it('存在しない取引の場合エラーをスローすること', async () => {
+      it('存在しない支出の場合エラーをスローすること', async () => {
         mockTransactionRepository.findById.mockResolvedValue(undefined);
 
         await expect(service.deleteTransaction(999, 1)).rejects.toThrow(
-          '指定された取引が見つかりません'
+          '指定された支出が見つかりません'
         );
         expect(mockTransactionRepository.delete).not.toHaveBeenCalled();
       });

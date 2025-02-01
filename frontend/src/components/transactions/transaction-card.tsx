@@ -29,7 +29,7 @@ export const TransactionCard = ({
       try {
         await deleteMutation.mutateAsync({ transactionId: id });
         toast({
-          description: '取引を削除しました',
+          description: '支出を削除しました',
         });
         // トランザクション一覧を更新
         await utils.transaction.list.invalidate();

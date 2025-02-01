@@ -1,6 +1,6 @@
 import type { ITransactionRepository } from '../repositories/transaction.repository';
 
-// 未精算取引のリスト
+// 未精算支出のリスト
 export interface UnSettledTransactionList {
   transactions: {
     id: number;

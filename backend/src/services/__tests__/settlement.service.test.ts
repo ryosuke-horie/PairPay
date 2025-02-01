@@ -23,14 +23,14 @@ describe('SettlementService', () => {
   });
 
   describe('getUnSettlementList', () => {
-    test('未精算取引がない場合は空の配列を返す', async () => {
+    test('未精算支出がない場合は空の配列を返す', async () => {
       vi.mocked(transactionRepository.findAllUnSettledTransactions).mockResolvedValue([]);
 
       const result = await settlementService.getUnSettlementList();
       expect(result).toEqual({ transactions: [] });
     });
 
-    test('未精算取引がある場合、全ての取引を返す', async () => {
+    test('未精算支出がある場合、全ての支出を返す', async () => {
       const mockTransactions = [
         {
           id: 1,
@@ -64,7 +64,7 @@ describe('SettlementService', () => {
       expect(result).toEqual({ transactions: mockTransactions });
     });
 
-    test('取引日の降順でソートされていることを確認', async () => {
+    test('支出日の降順でソートされていることを確認', async () => {
       const oldDate = new Date('2024-01-01');
       const newDate = new Date('2024-01-02');
 
