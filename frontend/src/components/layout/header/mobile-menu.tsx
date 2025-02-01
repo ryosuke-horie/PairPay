@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/use-auth';
 const routes = [
   {
     href: '/transactions',
-    label: '収支管理',
+    label: '支出管理',
   },
   {
     href: '/settlements',
