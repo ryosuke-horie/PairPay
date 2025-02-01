@@ -1,4 +1,3 @@
-// 未精算の取引一覧を表示するコンポーネント
 import { UnSettlementCard } from "./un-settlement-card";
 
 interface UnSettlementListProps {

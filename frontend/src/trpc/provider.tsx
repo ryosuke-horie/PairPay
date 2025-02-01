@@ -5,7 +5,6 @@ import { httpBatchLink } from '@trpc/client';
 import { useState, useEffect } from 'react';
 import { api, initTRPCClient } from './client';
 import type { PropsWithChildren } from 'react';
-import { config } from '../config/env';
 
 export function TrpcProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(() => new QueryClient());
@@ -13,13 +12,6 @@ export function TrpcProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const initClient = async () => {
-      // デバッグログ
-      console.log('[Debug] TRPC Provider Initialization:', {
-        nodeEnv: process.env.NODE_ENV,
-        window: typeof window !== 'undefined' ? 'browser' : 'server',
-        configBackendUrl: config.backendUrl
-      });
-
       const { config: clientConfig } = await initTRPCClient();
       const client = api.createClient({
         links: [

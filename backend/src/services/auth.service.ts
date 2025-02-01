@@ -3,7 +3,6 @@ import {
   type LoginResponse,
   type UserCreateInput,
   type UserLoginInput,
-  UserResponse,
 } from '../types';
 import { generateJWT, hashPassword, verifyJWT } from '../utils/auth.js';
 import { AuthenticationError, DuplicateError } from '../utils/error.js';
