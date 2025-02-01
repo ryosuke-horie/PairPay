@@ -1,9 +1,5 @@
 import type { IUserRepository } from '../repositories/user.repository';
-import {
-  type LoginResponse,
-  type UserCreateInput,
-  type UserLoginInput,
-} from '../types';
+import type { LoginResponse, UserCreateInput, UserLoginInput } from '../types';
 import { generateJWT, hashPassword, verifyJWT } from '../utils/auth.js';
 import { AuthenticationError, DuplicateError } from '../utils/error.js';
 
