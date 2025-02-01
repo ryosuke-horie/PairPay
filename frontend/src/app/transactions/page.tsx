@@ -32,7 +32,7 @@ export default function TransactionsPage() {
   return (
     <div className="py-4 sm:py-6">
       <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <h1 className="text-xl font-bold sm:text-3xl">収支管理</h1>
+        <h1 className="text-xl font-bold sm:text-3xl">支出管理</h1>
         <CreateTransactionDialog />
       </div>
 
