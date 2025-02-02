@@ -32,6 +32,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Run Production E2E Tests
         run: npx playwright test
         working-directory: frontend
