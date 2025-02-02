@@ -21,7 +21,7 @@ jobs:
 
       - name: Run Production E2E Tests
         run: npx playwright test
+        working-directory: frontend
         env:
-          # 環境変数
           PROD_URL: ${{ env.PROD_URL }}
           CI: true
