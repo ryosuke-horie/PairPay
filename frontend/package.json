@@ -71,7 +71,7 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20250129.0",
-    "@opennextjs/cloudflare": "^0.3.8",
+    "@opennextjs/cloudflare": "^0.4.7",
     "@playwright/test": "^1.49.1",
     "@types/node": "^22",
     "@types/react": "^19",
